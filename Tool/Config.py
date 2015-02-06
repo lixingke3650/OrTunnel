@@ -4,8 +4,8 @@
 
 # std
 import json
-# import ConfigParser
-import configparser
+import ConfigParser
+# import configparser
 
 class ConfigJson():
 	'''json配置文件处理'''
@@ -41,8 +41,8 @@ class ConfigIni():
 
 	def __init__(self, filepath):
 		fp = open(filepath)
-		# self._IniHandle = ConfigParser.ConfigParser()
-		self._IniHandle = configparser.ConfigParser()
+		self._IniHandle = ConfigParser.ConfigParser()
+		# self._IniHandle = configparser.ConfigParser()
 		# self._IniHandle.read(filepath)
 		self._IniHandle.readfp(fp)
 		fp.close()

@@ -21,11 +21,11 @@ class OrroLog(object):
 	_LogHandler = None
 	_LogFormat = None
 
-	def __init__(self):
+	def __init__(self, name):
 		# logger实例获取
-		self._Logger = logging.getLogger('ORRO')
+		self._Logger = logging.getLogger(name)
 		# 指定logger控制器
-		self._LogHandler = logging.FileHandler(filename='Orro_L.log')
+		self._LogHandler = logging.FileHandler(filename=name + '.log')
 		# 设置log格式
 		self._LogFormat = logging.Formatter('%(levelname)-9s %(asctime)s    %(message)s')
 		# 格式信息加载到控制器上
@@ -68,10 +68,10 @@ class OrroLog(object):
 		self._Logger.critical(mag)
 
 
-def getLogger():
+def getLogger(name='log'):
 	global _Logger
 	if( _Logger == None ):
-		_Logger  = OrroLog()
+		_Logger  = OrroLog(name)
 
 	return _Logger
 
