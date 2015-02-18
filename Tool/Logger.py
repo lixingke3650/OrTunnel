@@ -14,6 +14,9 @@
 # std
 import logging
 
+
+__all__ = ["OrroLog", "getLogger"]
+
 _Logger = None
 
 class OrroLog(object):

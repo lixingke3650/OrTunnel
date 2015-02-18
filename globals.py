@@ -3,7 +3,7 @@
 # Filename: globals.py
 
 # original
-import Tool
+# import Tool
 
 # logger
 G_Log = None
@@ -19,3 +19,5 @@ G_CLIENT_PORT = 0
 G_CLIENT_CONNECT_MAXNUMBER = 0
 # 密钥
 G_SECRET_KEY = '1234567890ABCDEF'
+# socket一次读取最大size
+G_SOCKET_RECV_MAXSIZE = 65535

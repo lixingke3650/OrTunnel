@@ -8,6 +8,8 @@ import Crypto.Cipher.ARC4
 # orignal
 
 
+__all__ = ["CrypterARC4"]
+
 class CrypterARC4():
 	"""加密解密类 - ARC4"""
 

@@ -7,6 +7,10 @@ import json
 import ConfigParser
 # import configparser
 
+
+__all__ = ["ConfigJson", "ConfigIni"]
+
+
 class ConfigJson():
 	'''json配置文件处理'''
 
