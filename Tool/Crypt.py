@@ -22,10 +22,10 @@ class CrypterARC4():
 		self._Cipher_En = Crypto.Cipher.ARC4.new(key)
 		self._Cipher_De = Crypto.Cipher.ARC4.new(key)
 
-	def enCrypt(self, buffer = ''):
+	def enCrypt(self, buffer = b''):
 		return self._Cipher_En.encrypt(buffer)
 
-	def deCrypt(self, buffer = ''):
+	def deCrypt(self, buffer = b''):
 		return self._Cipher_De.decrypt(buffer)
 
 if __name__ == '__main__' :

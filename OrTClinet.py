@@ -14,7 +14,8 @@ import Client.TunnelService
 
 # 版本说明
 # 0.10：基本功能实现
-__Version__ = 'v0.10'
+# 0.20：追加加密解密功能
+__Version__ = 'v0.21'
 
 
 def loadConfig():
@@ -22,15 +23,16 @@ def loadConfig():
 	globals.G_CLIENT_IP = config.getKey('OrTClient','SERVER_IP')
 	globals.G_CLIENT_PORT = config.getKeyInt('OrTClient','LISTEN_PORT')
 	globals.G_CLIENT_CONNECT_MAXNUMBER = config.getKeyInt('OrTClient','CONNECT_MAXNUMBER')
-	globals.G_CLIENT_LOGNAME = config.getKey('OrTClient','LOG_NAME')
-	globals.G_CLIENT_LOGLEVEL = config.getKey('OrTClient','LOG_LEVEL')
+	globals.G_LOGNAME = config.getKey('OrTClient','LOG_NAME')
+	globals.G_LOGLEVEL = config.getKey('OrTClient','LOG_LEVEL')
 	globals.G_SERVER_HOST = config.getKey('OrTClient','S_HOST')
 	globals.G_SERVER_PORT = config.getKeyInt('OrTClient','S_PORT')
-	globals.G_SECRET_KEY = config.getKeyInt('OrTClient','SECRET_KEY')
+	globals.G_SECRET_KEY = config.getKey('OrTClient','SECRET_KEY')
+	globals.G_SECRET_FLAG = config.getKeyBool('OrTClient','SECRET_FLAG')
 
 def globalsInit():
-	globals.G_Log = Logger.getLogger(globals.G_CLIENT_LOGNAME)
-	globals.G_Log.setLevel(globals.G_CLIENT_LOGLEVEL)
+	globals.G_Log = Logger.getLogger(globals.G_LOGNAME)
+	globals.G_Log.setLevel(globals.G_LOGLEVEL)
 
 def init():
 	loadConfig()
@@ -55,6 +57,7 @@ def main():
 	# printX('* Client C_Max: %d' % globals.G_CLIENT_CONNECT_MAXNUMBER)
 	printX('* Server Host: %s' % globals.G_SERVER_HOST)
 	printX('* Server Port: %d' % globals.G_SERVER_PORT)
+	printX('* Secret Flag: %s' % globals.G_SECRET_FLAG)
 	printX('* Client Log Level: %s' % globals.G_Log.getLevel())
 	printX('=====================================================')
 	printX('')

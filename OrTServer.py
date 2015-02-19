@@ -14,7 +14,8 @@ import Server.TunnelService
 
 # 版本说明
 # 0.10：基本功能实现
-__Version__ = 'v0.10'
+# 0.20：追加加密解密功能
+__Version__ = 'v0.21'
 
 
 def loadConfig():
@@ -26,7 +27,8 @@ def loadConfig():
 	globals.G_LOGLEVEL = config.getKey('OrTServer','LOG_LEVEL')
 	globals.G_APP_HOST = config.getKey('OrTServer','APP_HOST')
 	globals.G_APP_PORT = config.getKeyInt('OrTServer','APP_PORT')
-	globals.G_SECRET_KEY = config.getKeyInt('OrTServer','SECRET_KEY')
+	globals.G_SECRET_KEY = config.getKey('OrTServer','SECRET_KEY')
+	globals.G_SECRET_FLAG = config.getKeyBool('OrTServer','SECRET_FLAG')
 
 def globalsInit():
 	globals.G_Log = Logger.getLogger(globals.G_LOGNAME)
@@ -55,6 +57,7 @@ def main():
 	# printX('* Client C_Max: %d' % globals.G_CLIENT_CONNECT_MAXNUMBER)
 	printX('* Target App Host: %s' % globals.G_APP_HOST)
 	printX('* Target App Port: %d' % globals.G_APP_PORT)
+	printX('* Secret Flag: %s' % globals.G_SECRET_FLAG)
 	printX('* Server Log Level: %s' % globals.G_Log.getLevel())
 	printX('=====================================================')
 	printX('')

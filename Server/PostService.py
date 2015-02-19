@@ -28,6 +28,8 @@ class PostService():
 	_TunnelWorks = []
 	# 送信服务列表维护用线程锁
 	_TunnelWorkThreadRLock = None
+	# 数据加解密类
+	_ARC4Crypter = None
 
 	def __init__(self, ip, port, tunnelqueue):
 		'''送信服务初始化'''
@@ -36,6 +38,7 @@ class PostService():
 		self._PostAddress = (ip, port)
 		self._isRun = False
 		self._TunnelWorkThreadRLock = threading.RLock()
+		self._ARC4Crypter = CrypterARC4(globals.G_SECRET_KEY)
 
 	def start(self):
 		'''数据发送服务启动'''
@@ -142,17 +145,20 @@ class PostService():
 
 		globals.G_Log.info( 'ctosrun Start. [PostService.py:PostService:ctosrun]' )
 
-
 		try:
 			while True:
 				buffer = tunnelworker._ClientSocket.recv(globals.G_SOCKET_RECV_MAXSIZE)
 				if not buffer:
 					globals.G_Log.info( 'client socket close. [PostService.py:PostService:ctosrun]')
 					break
-				size = len(buffer)
-				sizetmp = 0
-				while (sizetmp < size):
-					sizetmp += tunnelworker._ServerSocket.send( buffer[sizetmp:] )
+				if (globals.G_SECRET_FLAG == True):
+					# buffer = self._ARC4Crypter.deCrypt(buffer)
+					buffer = CrypterARC4(b'1234567890ABCDEF').deCrypt(buffer)
+				tunnelworker._ServerSocket.sendall( buffer )
+				# size = len(buffer)
+				# sizetmp = 0
+				# while (sizetmp < size):
+				# 	sizetmp += tunnelworker._ServerSocket.send( buffer[sizetmp:] )
 
 		except Exception as e:
 			globals.G_Log.error( 'data post for client to server error! [PostService.py:PostService:ctosrun] --> %s' %e )
@@ -172,10 +178,14 @@ class PostService():
 				if not buffer:
 					globals.G_Log.info( 'server socket close. [PostService.py:PostService:stocrun]')
 					break
-				size = len(buffer)
-				sizetmp = 0
-				while (sizetmp < size):
-					sizetmp += tunnelworker._ClientSocket.send( buffer[sizetmp:] )
+				if (globals.G_SECRET_FLAG == True):
+					# buffer = self._ARC4Crypter.enCrypt(buffer)
+					buffer = CrypterARC4(b'1234567890ABCDEF').enCrypt(buffer)
+				tunnelworker._ClientSocket.sendall( buffer )
+				# size = len(buffer)
+				# sizetmp = 0
+				# while (sizetmp < size):
+				# 	sizetmp += tunnelworker._ClientSocket.send( buffer[sizetmp:] )
 
 		except Exception as e:
 			globals.G_Log.error( 'data post for server to client error! [PostService.py:PostService:stocrun] --> %s' %e )
