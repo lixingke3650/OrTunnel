@@ -98,7 +98,7 @@ class PostService():
 		try:
 			servicesock = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
 			servicesock.connect( self._PostAddress )
-			tunnelworker._ServerSocket = servicesock
+			tunnelworker._Server_App_Socket = servicesock
 			ctosthread = threading.Thread( target = self.ctosrun, args = (tunnelworker,) )
 			stocthread = threading.Thread( target = self.stocrun, args = (tunnelworker,) )
 			tunnelworker._CToSThread = ctosthread
@@ -119,14 +119,14 @@ class PostService():
 
 		try:
 			if (tunnelworker._isEnable == True):
-				if (tunnelworker._ClientSocket != None):
-					tunnelworker._ClientSocket.shutdown( socket.SHUT_RDWR )
-					tunnelworker._ClientSocket.close()
-					tunnelworker._ClientSocket = None
-				if (tunnelworker._ServerSocket != None):
-					tunnelworker._ServerSocket.shutdown( socket.SHUT_RDWR )
-					tunnelworker._ServerSocket.close()
-					tunnelworker._ServerSocket = None
+				if (tunnelworker._Client_Server_Socket != None):
+					tunnelworker._Client_Server_Socket.shutdown( socket.SHUT_RDWR )
+					tunnelworker._Client_Server_Socket.close()
+					tunnelworker._Client_Server_Socket = None
+				if (tunnelworker._Server_App_Socket != None):
+					tunnelworker._Server_App_Socket.shutdown( socket.SHUT_RDWR )
+					tunnelworker._Server_App_Socket.close()
+					tunnelworker._Server_App_Socket = None
 
 				try:
 					ret = self.tunnelworksmanager('del', tunnelworker)
@@ -140,25 +140,25 @@ class PostService():
 
 
 	def ctosrun(self, tunnelworker):
-		'''循环读取本地数据发送到远端服务器
+		'''循环读取客户端数据发送给应用
 		'''
 
 		globals.G_Log.info( 'ctosrun Start. [PostService.py:PostService:ctosrun]' )
 
 		try:
 			while True:
-				buffer = tunnelworker._ClientSocket.recv(globals.G_SOCKET_RECV_MAXSIZE)
+				buffer = tunnelworker._Client_Server_Socket.recv(globals.G_SOCKET_RECV_MAXSIZE)
 				if not buffer:
 					globals.G_Log.info( 'client socket close. [PostService.py:PostService:ctosrun]')
 					break
 				if (globals.G_SECRET_FLAG == True):
 					# buffer = self._ARC4Crypter.deCrypt(buffer)
 					buffer = CrypterARC4(b'1234567890ABCDEF').deCrypt(buffer)
-				tunnelworker._ServerSocket.sendall( buffer )
+				tunnelworker._Server_App_Socket.sendall( buffer )
 				# size = len(buffer)
 				# sizetmp = 0
 				# while (sizetmp < size):
-				# 	sizetmp += tunnelworker._ServerSocket.send( buffer[sizetmp:] )
+				# 	sizetmp += tunnelworker._Server_App_Socket.send( buffer[sizetmp:] )
 
 		except Exception as e:
 			globals.G_Log.error( 'data post for client to server error! [PostService.py:PostService:ctosrun] --> %s' %e )
@@ -167,25 +167,25 @@ class PostService():
 			self.abolishworker(tunnelworker)
 
 	def stocrun(self, tunnelworker):
-		'''循环读取数据发送到远程服务器
+		'''循环读取应用数据发送到远程客户端
 		'''
 
 		globals.G_Log.info( 'stocrun Start. [PostService.py:PostService:stocrun]' )
 
 		try:
 			while True:
-				buffer = tunnelworker._ServerSocket.recv(globals.G_SOCKET_RECV_MAXSIZE)
+				buffer = tunnelworker._Server_App_Socket.recv(globals.G_SOCKET_RECV_MAXSIZE)
 				if not buffer:
 					globals.G_Log.info( 'server socket close. [PostService.py:PostService:stocrun]')
 					break
 				if (globals.G_SECRET_FLAG == True):
 					# buffer = self._ARC4Crypter.enCrypt(buffer)
 					buffer = CrypterARC4(b'1234567890ABCDEF').enCrypt(buffer)
-				tunnelworker._ClientSocket.sendall( buffer )
+				tunnelworker._Client_Server_Socket.sendall( buffer )
 				# size = len(buffer)
 				# sizetmp = 0
 				# while (sizetmp < size):
-				# 	sizetmp += tunnelworker._ClientSocket.send( buffer[sizetmp:] )
+				# 	sizetmp += tunnelworker._Client_Server_Socket.send( buffer[sizetmp:] )
 
 		except Exception as e:
 			globals.G_Log.error( 'data post for server to client error! [PostService.py:PostService:stocrun] --> %s' %e )

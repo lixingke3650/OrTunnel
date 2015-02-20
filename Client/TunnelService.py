@@ -28,8 +28,8 @@ class TunnelService():
 		maxdata: 最大隧道条数(本地监听最大响应数)'''
 
 		self._TunnelQueue = Queue.Queue(maxsize = maxdata)
-		self._ListenService = ListenService.ListenService(globals.G_CLIENT_IP, globals.G_CLIENT_PORT, self._TunnelQueue, globals.G_CLIENT_CONNECT_MAXNUMBER)
-		self._PostService = PostService.PostService(globals.G_SERVER_HOST, globals.G_SERVER_PORT, self._TunnelQueue)
+		self._ListenService = ListenService.ListenService(globals.G_LISTEN_IP, globals.G_LISTEN_PORT, self._TunnelQueue, globals.G_LISTEN_CONNECT_MAXNUMBER)
+		self._PostService = PostService.PostService(globals.G_TARGET_HOST, globals.G_TARGET_PORT, self._TunnelQueue)
 
 	def start(self):
 		ret = True

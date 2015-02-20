@@ -87,7 +87,7 @@ class ListenService():
 			try:
 				sock, address = self._ServiceSocket.accept()
 				tunnelworker = TunnelWorker.TunnelWorker()
-				tunnelworker._ClientSocket = sock
+				tunnelworker._Client_Server_Socket = sock
 				# worker加入到队列
 				self._TunnelQueue.put(tunnelworker)
 
