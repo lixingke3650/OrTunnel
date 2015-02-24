@@ -3,7 +3,7 @@
 # FileName: OrTServer.py
 
 # std
-import sys
+import platform
 
 # orignal
 import globals
@@ -43,22 +43,21 @@ def start():
 	return OrTunnelServer.start()
 
 def main():
-	printX('This is Data Encryption Transmission System of OrTunnel.')
-	printX('(https://github.com/lixingke3650/OrTunnel)')
-	printX('OrTunnel Server Version: ' + __Version__)
-	printX('Python Version: ' + sys.version)
+	printX('OrTunnel Server  (https://github.com/lixingke3650/OrTunnel)')
+	printX('Version: ' + __Version__)
+	printX('Python Version: %s (%s, %s)' %(platform.python_version(),platform.architecture()[0],platform.system()))
 	printX('')
 
 	init()
 
-	printX('=====================================================')
+	printX('============================================================')
 	printX('* Listen IPAddr: %s' % globals.G_LISTEN_IP)
 	printX('* Listen Port: %d' % globals.G_LISTEN_PORT)
 	printX('* Target App Host: %s' % globals.G_APP_HOST)
 	printX('* Target App Port: %d' % globals.G_APP_PORT)
 	printX('* Secret Flag: %s' % globals.G_SECRET_FLAG)
 	printX('* Server Log Level: %s' % globals.G_Log.getLevel())
-	printX('=====================================================')
+	printX('============================================================')
 	printX('')
 
 	if (start() != True):

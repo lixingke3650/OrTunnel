@@ -153,7 +153,7 @@ class PostService():
 					break
 				if (globals.G_SECRET_FLAG == True):
 					# buffer = self._ARC4Crypter.deCrypt(buffer)
-					buffer = CrypterARC4(b'1234567890ABCDEF').deCrypt(buffer)
+					buffer = CrypterARC4(globals.G_SECRET_KEY).deCrypt(buffer)
 				tunnelworker._Server_App_Socket.sendall( buffer )
 				# size = len(buffer)
 				# sizetmp = 0
@@ -180,7 +180,7 @@ class PostService():
 					break
 				if (globals.G_SECRET_FLAG == True):
 					# buffer = self._ARC4Crypter.enCrypt(buffer)
-					buffer = CrypterARC4(b'1234567890ABCDEF').enCrypt(buffer)
+					buffer = CrypterARC4(globals.G_SECRET_KEY).enCrypt(buffer)
 				tunnelworker._Client_Server_Socket.sendall( buffer )
 				# size = len(buffer)
 				# sizetmp = 0

@@ -5,6 +5,7 @@
 # std
 import socket
 import threading
+import struct
 
 # original
 from Tool import *
@@ -154,7 +155,7 @@ class PostService():
 					break
 				if (globals.G_SECRET_FLAG == True):
 					# buffer = self._ARC4Crypter.enCrypt(buffer)
-					buffer = CrypterARC4(b'1234567890ABCDEF').enCrypt(buffer)
+					buffer = CrypterARC4(globals.G_SECRET_KEY).enCrypt(buffer)
 				tunnelworker._ServerSocket.sendall( buffer )
 				# size = len(buffer)
 				# sizetmp = 0
@@ -181,7 +182,7 @@ class PostService():
 					break
 				if (globals.G_SECRET_FLAG == True):
 					# buffer = self._ARC4Crypter.deCrypt(buffer)
-					buffer = CrypterARC4(b'1234567890ABCDEF').deCrypt(buffer)
+					buffer = CrypterARC4(globals.G_SECRET_KEY).deCrypt(buffer)
 				tunnelworker._ClientSocket.sendall( buffer )
 				# size = len(buffer)
 				# sizetmp = 0
