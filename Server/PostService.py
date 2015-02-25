@@ -151,9 +151,14 @@ class PostService():
 				if not buffer:
 					globals.G_Log.info( 'client socket close. [PostService.py:PostService:ctosrun]')
 					break
-				if (globals.G_SECRET_FLAG == True):
+				if (globals.G_SECRET_FLAG == True and globals.G_SECRET_TYPE == 'ARC4'):
 					# buffer = self._ARC4Crypter.deCrypt(buffer)
 					buffer = CrypterARC4(globals.G_SECRET_KEY).deCrypt(buffer)
+					# # >>>>>>>>>>>
+					# fp = open('S_Request', 'ab')
+					# fp.write(buffer)
+					# fp.close()
+					# # <<<<<<<<<<<
 				tunnelworker._Server_App_Socket.sendall( buffer )
 				# size = len(buffer)
 				# sizetmp = 0
@@ -178,9 +183,19 @@ class PostService():
 				if not buffer:
 					globals.G_Log.info( 'server socket close. [PostService.py:PostService:stocrun]')
 					break
-				if (globals.G_SECRET_FLAG == True):
+				if (globals.G_SECRET_FLAG == True and globals.G_SECRET_TYPE == 'ARC4'):
 					# buffer = self._ARC4Crypter.enCrypt(buffer)
+					# # >>>>>>>>>>>
+					# fp = open('S_Response', 'ab')
+					# fp.write(buffer)
+					# fp.close()
+					# # <<<<<<<<<<<
 					buffer = CrypterARC4(globals.G_SECRET_KEY).enCrypt(buffer)
+					# # >>>>>>>>>>>
+					# fp = open('S_Res_Binary', 'ab')
+					# fp.write(buffer)
+					# fp.close()
+					# # <<<<<<<<<<<
 				tunnelworker._Client_Server_Socket.sendall( buffer )
 				# size = len(buffer)
 				# sizetmp = 0

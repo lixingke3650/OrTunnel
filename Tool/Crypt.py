@@ -4,6 +4,7 @@
 
 # std
 import Crypto.Cipher.ARC4
+import base64
 
 # orignal
 

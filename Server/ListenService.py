@@ -6,6 +6,7 @@
 import socket
 import threading
 import Queue
+import ssl
 
 # original
 from Tool import *
@@ -86,6 +87,14 @@ class ListenService():
 		while (self._isRun == True):
 			try:
 				sock, address = self._ServiceSocket.accept()
+				# SSL Socket
+				if (globals.G_SECRET_FLAG == True and globals.G_SECRET_TYPE == 'SSL'):
+					sock = ssl.wrap_socket(	sock,							\
+											server_side=True,				\
+											certfile=globals.G_TLS_CERT,	\
+											keyfile=globals.G_TLS_KEY,		\
+											ssl_version=ssl.PROTOCOL_TLSv1)
+
 				tunnelworker = TunnelWorker.TunnelWorker()
 				tunnelworker._Client_Server_Socket = sock
 				# worker加入到队列

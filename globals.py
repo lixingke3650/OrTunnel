@@ -8,8 +8,16 @@ G_Log = None
 G_LOG_NAME = 'OrTunnel'
 # log 输出级别
 G_LOGLEVEL = 'INFO'
-# 加密解密开关switch
+# 加解密开关switch
 G_SECRET_FLAG = False
+# 加解密方式
+G_SECRET_TYPE = None
+# SSL/TLS 证书
+G_TLS_CERT = None
+# SSL/TLS 私钥
+G_TLS_KEY = None
+# SSL/TLS 证书 (连接方证书，验证用)
+G_TLS_CERT_VERIFY = None
 # 密钥
 G_SECRET_KEY = '1234567890ABCDEF'
 # socket一次读取最大size
