@@ -15,7 +15,7 @@ import Server.TunnelService
 # 版本说明
 # 0.10：基本功能实现
 # 0.20：追加加密解密功能
-__Version__ = 'v0.22'
+__Version__ = 'v0.23'
 
 
 def loadConfig():

@@ -39,7 +39,6 @@ class TunnelService():
 		elif (self._PostService.start() != True):
 			ret = False
 			globals.G_Log.error( 'Post Service Start error! [TunnelService.py:TunnelService:start]' )
-
 		if (ret != True):
 			self._ListenService.stop()
 			self._PostService.stop()

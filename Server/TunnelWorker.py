@@ -21,3 +21,4 @@ class TunnelWorker():
 	_CToSThread = None
 	_StoCThread = None
 	_isEnable = False
+	_Crypt = None
