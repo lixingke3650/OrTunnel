@@ -3,14 +3,15 @@
 实现数据加密在网络上传输的系统。  
 可选加密方式：  
 
-* ARC4流加密方式(利用PyCrypto实现)  
+* ARC4流加密方式  
+* 　　(v0.22版本前利用PyCrypto实现,新版本内部实现。详见Tool/Crypt.py)  
 * SSL/TLS(TLSv1)  
   
 关于SSL证书的使用：  
 
 cert文件夹中提供的证书可以用作测试，  
-同时给出了私钥，安全性无法得到保证，  
-所以** 请另行制作私钥与证书，替换原文件。**  
+因同时给出了私钥，安全性无法得到保证，  
+所以使用时** 请另行制作私钥与证书，替换原文件。**  
   
 附OpenSSL制作证书方法：  
 
@@ -18,7 +19,14 @@ cert文件夹中提供的证书可以用作测试，
 >$ openssl req -new -key server.key > server.csr  
 >$ openssl x509 -days 3650 -req -signkey server.key < server.csr > server.crt  
   
-
+----  
+### 更新至版本v0.23  
+  
+解决ARC4加解密乱码问题  
+内部实现ARC4加解密，不再需要依赖PyCrypto  
+  
+2015.02.28  
+  
 ----
 ### 更新至版本v0.22  
   
