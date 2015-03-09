@@ -192,3 +192,28 @@ class PostService():
 		self._TunnelWorkThreadRLock.release()
 		# 返回当前work总数
 		return ret;
+
+
+	def testing(self):
+		'''送信服务测试
+		测试服务端能否连通
+		'''
+
+		try:
+			# 利用socket connect来判断服务端能否连接
+			testsock = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
+			# SSL Socket
+			if (globals.G_SECRET_FLAG == True and globals.G_SECRET_TYPE == 'SSL'):
+				testsock = ssl.wrap_socket(	testsock,						\
+												ca_certs=globals.G_TLS_CERT_VERIFY,	\
+												cert_reqs=ssl.CERT_REQUIRED)
+			testsock.connect( self._PostAddress )
+			# socket关闭
+			testsock.shutdown( socket.SHUT_RDWR )
+			testsock.close()
+			return True
+
+		except Exception as e:
+			return False
+
+		

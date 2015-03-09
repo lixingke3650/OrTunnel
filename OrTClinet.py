@@ -46,6 +46,11 @@ def init():
 
 def start():
 	OrTunnelClient = Client.TunnelService.TunnelService()
+	# 测试
+	if (OrTunnelClient.testing() != True):
+		printX('unable to connect to OrTunnel Server!')
+		return False
+
 	return OrTunnelClient.start()
 
 def main():
@@ -69,6 +74,7 @@ def main():
 
 	if (start() != True):
 		printX('OrTunnel Client Service Start Failed.')
+		raw_input()
 		return
 
 	printX('OrTunnel Client Service Start OK.')

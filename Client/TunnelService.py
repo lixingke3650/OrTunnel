@@ -44,3 +44,13 @@ class TunnelService():
 			self._PostService.stop()
 
 		return ret
+
+	def testing(self):
+		'''服务测试
+		'''
+
+		if (self._PostService.testing() != True):
+			globals.G_Log.info( 'Post Service Testing fail! [TunnelService.py:TunnelService:testing]' )
+			return False
+
+		return True

@@ -69,6 +69,7 @@ def main():
 
 	if (start() != True):
 		printX('OrTunnel Server Service Start Failed.')
+		raw_input()
 		return
 
 	printX('OrTunnel Server Service Start OK.')
