@@ -11,7 +11,7 @@
 
 cert文件夹中提供的证书可以用作测试，  
 因同时给出了私钥，安全性无法得到保证，  
-所以使用时**请另行制作私钥与证书，替换原文件。**    
+所以使用时** 请另行制作私钥与证书，替换原文件。**  
   
 附OpenSSL制作证书方法：  
 
@@ -19,6 +19,14 @@ cert文件夹中提供的证书可以用作测试，
 >$ openssl req -new -key server.key > server.csr  
 >$ openssl x509 -days 3650 -req -signkey server.key < server.csr > server.crt  
   
+----  
+### 更新至版本v0.24  
+  
+删除了不必要的日志信息  
+控制台只在DEBUG下有输出    
+  
+2015.05.19  
+
 ----  
 ### 更新至版本v0.23  
   

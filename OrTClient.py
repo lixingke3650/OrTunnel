@@ -15,7 +15,9 @@ import Client.TunnelService
 # 版本说明
 # 0.10：基本功能实现
 # 0.20：追加加密解密功能
-__Version__ = 'v0.23'
+# 0.23：追加连接测试功能
+# 0.24：删除无用的日志信息，控制台输出只在DEBUG时出现
+__Version__ = 'v0.24'
 
 
 def loadConfig():
@@ -77,7 +79,7 @@ def main():
 		raw_input()
 		return
 
-	printX('OrTunnel Client Service Start OK.')
+	printX('OrTunnel Client Service Started.')
 	printX('')
 
 
