@@ -7,7 +7,7 @@ import socket
 import threading
 
 # original
-import Net
+import Server.Net
 
 class HeartBeat():
 

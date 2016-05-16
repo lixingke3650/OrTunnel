@@ -20,6 +20,14 @@ cert文件夹中提供的证书可以用作测试，
 >$ openssl x509 -days 3650 -req -signkey server.key < server.csr > server.crt  
   
 ----  
+### 更新至版本v0.25  
+  
+适用于Python3 (Python2请使用上一个稳定版0.24)  
+ARC4更新为string和bytes两种加解密方式，密钥改为只接受bytes类型  
+  
+2016.5.12  
+
+----  
 ### 更新至版本v0.24  
   
 删除了不必要的日志信息  

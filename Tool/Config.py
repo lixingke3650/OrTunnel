@@ -3,74 +3,80 @@
 # Filename: Config.py
 
 # std
+import sys
 import json
-import ConfigParser
-# import configparser
+PY2 = sys.version_info[0] == 2
+if not PY2:
+    import configparser
+else :
+    import ConfigParser
 
 
 __all__ = ["ConfigJson", "ConfigIni"]
 
 
 class ConfigJson():
-	'''json配置文件处理'''
+    '''json配置文件处理'''
 
-	_JsonHandle = None
+    _JsonHandle = None
 
-	def __init__(self, filepath):
-		fp = open(filepath)
-		self._JsonHandle = json.load(fp)
-		fp.close()
+    def __init__(self, filepath):
+        fp = open(filepath)
+        self._JsonHandle = json.load(fp)
+        fp.close()
 
-	def getKey(self, *keys):
-		'''返回键值，可变参数，可指定多层'''
+    def getKey(self, *keys):
+        '''返回键值，可变参数，可指定多层'''
 
-		if (keys == None):
-			return self._JsonHandle
+        if (keys == None):
+            return self._JsonHandle
 
-		try:
-			json = self._JsonHandle
-			for key in keys:
-				json = self.jsonelemiter(json, key)
-			return json
-		except:
-			return None
+        try:
+            json = self._JsonHandle
+            for key in keys:
+                json = self.jsonelemiter(json, key)
+            return json
+        except:
+            return None
 
-	def jsonelemiter(self, json, key):
-		return json[key]
+    def jsonelemiter(self, json, key):
+        return json[key]
 
 class ConfigIni():
-	'''INI配置文件处理'''
+    '''INI配置文件处理'''
 
-	_IniHandle = None
+    _IniHandle = None
 
-	def __init__(self, filepath):
-		fp = open(filepath)
-		self._IniHandle = ConfigParser.ConfigParser()
-		# self._IniHandle = configparser.ConfigParser()
-		# self._IniHandle.read(filepath)
-		self._IniHandle.readfp(fp)
-		fp.close()
+    def __init__(self, filepath):
+        fp = open(filepath, mode='r', encoding='utf8' )
+        if not PY2:
+            self._IniHandle = configparser.ConfigParser()
+        else :
+            self._IniHandle = ConfigParser.ConfigParser()
+        # self._IniHandle.read(filepath)
+        self._IniHandle.readfp(fp)
+        fp.close()
 
-	def getKey(self, section, option):
-		try:
-			return (self._IniHandle.get(section, option))
-		except:
-			return None
+    def getKey(self, section, option):
+        try:
+            return (self._IniHandle.get(section, option))
+        except:
+            return None
 
-	def getKeyInt(self, section, option):
-		try:
-			return (self._IniHandle.getint(section, option))
-		except:
-			return None
+    def getKeyInt(self, section, option):
+        try:
+            return (self._IniHandle.getint(section, option))
+        except:
+            return None
 
-	def getKeyFloat(self, section, option):
-		try:
-			return (self._IniHandle.getfloat(section, option))
-		except:
-			return None
+    def getKeyFloat(self, section, option):
+        try:
+            return (self._IniHandle.getfloat(section, option))
+        except:
+            return None
 
-	def getKeyBool(self, section, option):
-		try:
-			return (self._IniHandle.getboolean(section, option))
-		except:
-			return None
+    def getKeyBool(self, section, option):
+        try:
+            return (self._IniHandle.getboolean(section, option))
+        except:
+            return None
