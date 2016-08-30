@@ -52,6 +52,7 @@ class TunnelService():
 
         if (self._PostService.testing() != True):
             globals.G_Log.info( 'Post Service Testing fail! [TunnelService.py:TunnelService:testing]' )
+            IO.printX('tunnel test : NG.')
             return False
-
+        IO.printX('tunnel test : OK.')
         return True
