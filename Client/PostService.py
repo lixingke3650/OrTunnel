@@ -24,8 +24,6 @@ class PostService():
     _TunnelQueue = None
     # 发送进程描述符
     _PostThread = None
-    # 发送目标地址
-    _PostAddress = None
     # 运行标识
     _isRun = None
     # 送信服务列表
@@ -34,11 +32,10 @@ class PostService():
     _TunnelWorkThreadRLock = None
 
 
-    def __init__(self, ip, port, tunnelqueue):
+    def __init__(self, tunnelqueue):
         '''送信服务初始化'''
 
         self._TunnelQueue = tunnelqueue
-        self._PostAddress = (ip, port)
         self._isRun = False
         self._TunnelWorkThreadRLock = threading.RLock()
 
@@ -49,12 +46,14 @@ class PostService():
         if (self._TunnelQueue == None):
             return False
         try:
-            self._PostThread = threading.Thread( target = self.postrun )
+            globals.G_Log.debug('Post Service Start Start.')
+            self._PostThread = threading.Thread(target = self.postrun)
             self._isRun = True
             self._PostThread.start()
+            globals.G_Log.debug('Post Service Start End.')
             return True
         except Exception as e:
-            globals.G_Log.error( 'Post Service Start error! [PostService.py:PostService:start] --> %s' %e )
+            globals.G_Log.error('Post Service Start error! [PostService.py:PostService:start] --> %s' %e)
             return False
 
 
@@ -65,11 +64,13 @@ class PostService():
             return True
 
         try:
+            globals.G_Log.debug('Post Service Stop Start.')
             self._isRun = False
             # 列表中worker停止
             while tunnelworker in self._TunnelWorks:
                 self.abolishworker(tunnelworker)
             self._PostThread.join(10)
+            globals.G_Log.debug( 'Post Service Stop End.' )
             return True
         except Exception as e:
             globals.G_Log.error( 'Listen Service Stop error! [ListenService.py:ListenService:stop] --> %s' %e )
@@ -93,6 +94,7 @@ class PostService():
         '''
 
         try:
+            globals.G_Log.debug( 'Post Service launchworker Start.' )
             servicesock = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
             # SSL Socket
             if (globals.G_SECRET_FLAG == True and globals.G_SECRET_TYPE == 'SSL'):
@@ -102,8 +104,12 @@ class PostService():
             # ARC4 Crypt
             elif (globals.G_SECRET_FLAG == True and globals.G_SECRET_TYPE == 'ARC4'):
                 tunnelworker._Crypt = Crypt.CrypterARC4(globals.G_SECRET_KEY)
-            servicesock.connect( self._PostAddress )
-            tunnelworker._ServerSocket = servicesock
+            # servicesock.connect( self._PostAddress )
+            serveraddress = (tunnelworker._Info[2], tunnelworker._Info[3])
+            globals.G_Log.debug( 'Post Service launchworker connect Start -> [%s, %d].' %(tunnelworker._Info[2], tunnelworker._Info[3]))
+            servicesock.connect( serveraddress )
+            globals.G_Log.debug( 'Post Service launchworker connect OK -> [%s, %d].' %(tunnelworker._Info[2], tunnelworker._Info[3]))
+            tunnelworker._Client_Server_Socket = servicesock
             ctosthread = threading.Thread( target = self.ctosrun, args = (tunnelworker,) )
             stocthread = threading.Thread( target = self.stocrun, args = (tunnelworker,) )
             tunnelworker._CToSThread = ctosthread
@@ -125,14 +131,14 @@ class PostService():
 
         try:
             if (tunnelworker._isEnable == True):
-                if (tunnelworker._ClientSocket != None):
-                    tunnelworker._ClientSocket.shutdown( socket.SHUT_RDWR )
-                    tunnelworker._ClientSocket.close()
-                    tunnelworker._ClientSocket = None
-                if (tunnelworker._ServerSocket != None):
-                    tunnelworker._ServerSocket.shutdown( socket.SHUT_RDWR )
-                    tunnelworker._ServerSocket.close()
-                    tunnelworker._ServerSocket = None
+                if (tunnelworker._Client_App_Socket != None):
+                    tunnelworker._Client_App_Socket.shutdown( socket.SHUT_RDWR )
+                    tunnelworker._Client_App_Socket.close()
+                    tunnelworker._Client_App_Socket = None
+                if (tunnelworker._Client_Server_Socket != None):
+                    tunnelworker._Client_Server_Socket.shutdown( socket.SHUT_RDWR )
+                    tunnelworker._Client_Server_Socket.close()
+                    tunnelworker._Client_Server_Socket = None
                 try:
                     ret = self.tunnelworksmanager('del', tunnelworker)
                     tunnelworker._isEnable = False
@@ -158,14 +164,21 @@ class PostService():
         '''
 
         try:
-            while True:
-                buffer = tunnelworker._ClientSocket.recv(globals.G_SOCKET_RECV_MAXSIZE)
-                if not buffer:
-                    globals.G_Log.info( 'client socket close. [PostService.py:PostService:ctosrun]')
-                    break
-                if (globals.G_SECRET_FLAG == True and globals.G_SECRET_TYPE == 'ARC4'):
-                    buffer = tunnelworker._Crypt.enCrypt(buffer)
-                tunnelworker._ServerSocket.sendall( buffer )
+            # ARC4
+            if (globals.G_SECRET_FLAG == True and globals.G_SECRET_TYPE == 'ARC4'):
+                while True:
+                    buffer = tunnelworker._Client_App_Socket.recv(globals.G_SOCKET_RECV_MAXSIZE)
+                    if not buffer:
+                        globals.G_Log.info( 'client socket close. [PostService.py:PostService:ctosrun]')
+                        break
+                    tunnelworker._Client_Server_Socket.sendall(tunnelworker._Crypt.enCrypt(buffer))
+            else:
+                while True:
+                    buffer = tunnelworker._Client_App_Socket.recv(globals.G_SOCKET_RECV_MAXSIZE)
+                    if not buffer:
+                        globals.G_Log.info( 'client socket close. [PostService.py:PostService:ctosrun]')
+                        break
+                    tunnelworker._Client_Server_Socket.sendall(buffer)
         except AttributeError as e:
             # socket被关闭后无法读写，输出DEBUG日志
             globals.G_Log.debug( 'data post for server to client TypeError! [PostService.py:PostService:ctosrun] --> %s' %e )
@@ -187,13 +200,13 @@ class PostService():
 
         try:
             while True:
-                buffer = tunnelworker._ServerSocket.recv(globals.G_SOCKET_RECV_MAXSIZE)
+                buffer = tunnelworker._Client_Server_Socket.recv(globals.G_SOCKET_RECV_MAXSIZE)
                 if not buffer:
                     globals.G_Log.info( 'server socket close. [PostService.py:PostService:stocrun]')
                     break
                 if (globals.G_SECRET_FLAG == True and globals.G_SECRET_TYPE == 'ARC4'):
                     buffer = tunnelworker._Crypt.deCrypt(buffer)
-                tunnelworker._ClientSocket.sendall(buffer)
+                tunnelworker._Client_App_Socket.sendall(buffer)
         except AttributeError as e:
             # socket被关闭后无法读写，输出DEBUG日志
             globals.G_Log.debug( 'data post for server to client TypeError! [PostService.py:PostService:stocrun] --> %s' %e )
@@ -233,24 +246,31 @@ class PostService():
         return ret;
 
 
-    def testing(self):
+    def testTunnelGroup(self, groupnumber, grouplist):
         '''送信服务测试
         测试服务端能否连通
         '''
 
-        try:
-            # 利用socket connect来判断服务端能否连接
-            testsock = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
-            # SSL Socket
-            if (globals.G_SECRET_FLAG == True and globals.G_SECRET_TYPE == 'SSL'):
-                testsock = ssl.wrap_socket( testsock,                       \
+        number = 0
+        if (groupnumber > len(grouplist)):
+            number = len(grouplist)
+        else:
+            number = groupnumber
+
+        for i in range(number):
+            try:
+                # 利用socket connect来判断服务端能否连接
+                info = grouplist[i]
+                testsock = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
+                # SSL Socket
+                if (globals.G_SECRET_FLAG == True and globals.G_SECRET_TYPE == 'SSL'):
+                    testsock = ssl.wrap_socket( testsock, \
                                                 ca_certs=globals.G_TLS_CERT_VERIFY, \
                                                 cert_reqs=ssl.CERT_REQUIRED)
-            testsock.connect( self._PostAddress )
-            # socket关闭
-            testsock.shutdown( socket.SHUT_RDWR )
-            testsock.close()
-            return True
-
-        except Exception as e:
-            return False
+                testsock.connect( (info[2], info[3]) )
+                # socket关闭
+                testsock.shutdown( socket.SHUT_RDWR )
+                testsock.close()
+                IO.printX('tunnel [%d] test : OK.' %(i+1))
+            except Exception as e:
+                IO.printX('tunnel [%d] test : NG.' %(i+1))

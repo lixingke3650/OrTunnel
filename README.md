@@ -19,6 +19,15 @@ cert文件夹中提供的证书可以用作测试，
 >$ openssl req -new -key server.key > server.csr  
 >$ openssl x509 -days 3650 -req -signkey server.key < server.csr > server.crt  
   
+
+----  
+### 更新至版本v0.30  
+  
+可建立多条隧道 客户端/服务端请同时更新至0.30版  
+ARC4模式下数据传输效率改善  
+  
+2017.09.25  
+
 ----  
 ### 更新至版本v0.25  
   

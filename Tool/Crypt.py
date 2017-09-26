@@ -139,12 +139,7 @@ Jacob Schuldt
 
         return self.gearstr(buffer)
 
-if __name__ == '__main__' :
+if __name__ == '__main__':
     myCrypter = CrypterARC4(b'O1r2T3u4n5n6e7l8')
     tmp = myCrypter.enCrypt(b'hello?')
     print (myCrypter.deCrypt(tmp))
-
-    # print(bytes([51, 13, 10]))
-    # print(bytes('3', 'utf8') + b'\r\n')
-    # n = 3
-    # print(bytes(str(n), 'ascii') + b'\r\n')

@@ -5,8 +5,8 @@
 __all__ = [ \
     'G_Log', 'G_LOG_NAME', 'G_LOG_LEVEL', 'G_SECRET_FLAG', \
     'G_SECRET_TYPE', 'G_TLS_CERT', 'G_TLS_KEY', 'G_TLS_CERT_VERIFY', \
-    'G_SECRET_KEY', 'G_SOCKET_RECV_MAXSIZE', 'G_TARGET_HOST', 'G_TARGET_PORT', \
-    'G_LISTEN_HOST', 'G_LISTEN_PORT', 'G_LISTEN_CONNECT_MAXNUMBER', \
+    'G_SECRET_KEY', 'G_SOCKET_RECV_MAXSIZE', 'G_LISTEN_CONNECT_HOLDMAX', \
+    'G_TUNNEL_NUM', 'G_TUNNEL_GROUP_LIST' \
 ]
 
 # logger
@@ -29,13 +29,10 @@ G_TLS_CERT_VERIFY = None
 G_SECRET_KEY = '1234567890ABCDEF'
 # socket一次读取最大size
 G_SOCKET_RECV_MAXSIZE = 65535
-# 目标应用IP地址
-G_TARGET_HOST = '0.0.0.0'
-# 目标应用端口
-G_TARGET_PORT = 0
-# 监视IP
-G_LISTEN_HOST = '0.0.0.0'
-# 监视端口
-G_LISTEN_PORT = 0
 # 最大连接数
-G_LISTEN_CONNECT_MAXNUMBER = 0
+G_LISTEN_CONNECT_HOLDMAX = 0
+# 隧道条数
+G_TUNNEL_NUM = 0
+# 隧道对象 列表结构： [(0:监听IP， 1:监听端口， 2:目标IP， 3:目标端口， 4:最大连接数), ...]
+# G_TUNNEL_GROUP_LIST = [('0.0.0.0', 0, '0.0.0.0', 0, 5), ('0.0.0.0', 0, '0.0.0.0', 0, 10)]
+G_TUNNEL_GROUP_LIST = []

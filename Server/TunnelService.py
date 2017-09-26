@@ -29,17 +29,17 @@ class TunnelService():
         maxdata: 最大隧道条数(本地监听最大响应数)'''
 
         self._TunnelQueue = queue.Queue(maxsize = maxdata)
-        self._ListenService = ListenService(globals.G_LISTEN_HOST, globals.G_LISTEN_PORT, self._TunnelQueue, globals.G_LISTEN_CONNECT_MAXNUMBER)
-        self._PostService = PostService(globals.G_APP_HOST, globals.G_APP_PORT, self._TunnelQueue)
+        self._ListenService = ListenService(globals.G_TUNNEL_NUM, globals.G_TUNNEL_GROUP_LIST, self._TunnelQueue)
+        self._PostService = PostService(self._TunnelQueue)
 
     def start(self):
         ret = True
         if (self._ListenService.start() != True):
             ret = False
-            globals.G_Log.error( 'Listen Service Start error! [TunnelService.py:TunnelService:start]' )
+            globals.G_Log.error('Listen Service Start error! [TunnelService.py:TunnelService:start]')
         elif (self._PostService.start() != True):
             ret = False
-            globals.G_Log.error( 'Post Service Start error! [TunnelService.py:TunnelService:start]' )
+            globals.G_Log.error('Post Service Start error! [TunnelService.py:TunnelService:start]')
         if (ret != True):
             self._ListenService.stop()
             self._PostService.stop()

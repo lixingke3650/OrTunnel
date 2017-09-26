@@ -29,8 +29,8 @@ class TunnelService():
         maxdata: 最大隧道条数(本地监听最大响应数)'''
 
         self._TunnelQueue = queue.Queue(maxsize = maxdata)
-        self._ListenService = ListenService(globals.G_LISTEN_HOST, globals.G_LISTEN_PORT, self._TunnelQueue, globals.G_LISTEN_CONNECT_MAXNUMBER)
-        self._PostService = PostService(globals.G_TARGET_HOST, globals.G_TARGET_PORT, self._TunnelQueue)
+        self._ListenService = ListenService(globals.G_TUNNEL_NUM, globals.G_TUNNEL_GROUP_LIST, self._TunnelQueue)
+        self._PostService = PostService(self._TunnelQueue)
 
     def start(self):
         ret = True
@@ -50,9 +50,5 @@ class TunnelService():
         '''服务测试
         '''
 
-        if (self._PostService.testing() != True):
-            globals.G_Log.info( 'Post Service Testing fail! [TunnelService.py:TunnelService:testing]' )
-            IO.printX('tunnel test : NG.')
-            return False
-        IO.printX('tunnel test : OK.')
+        self._PostService.testTunnelGroup(globals.G_TUNNEL_NUM, globals.G_TUNNEL_GROUP_LIST)
         return True

@@ -20,67 +20,83 @@ class ListenService():
 
     # 数据队列
     _TunnelQueue = None
-    # 监听服务socket
-    _ServiceSocket = None
-    # 监听地址
-    _ServerAddress = None
-    # 监听连接最大数
-    _ConnectMaximum = None
+    # 隧道条数
+    _TunnelGroupNumber = 0
     # 监听进程描述符
     _GeneratorThread = None
+    # 隧道对象列表
+    _TunnelGroupList = []
+    # 隧道监听列表
+    _Accepting_TunnelGroupList = []
     # 监听服务启动标识
     _isRun = None
     # 监听服务子通信进程维护列表
 
-    def __init__(self, ip, port, tunnelqueue, maximum = 128):
+    def __init__(self, groupnumber, grouplist, tunnelqueue):
         '''监听服务初始化'''
-
+        if (groupnumber > len(grouplist)):
+            self._TunnelGroupNumber = len(grouplist)
+        else:
+            self._TunnelGroupNumber = groupnumber
+        self._TunnelGroupList = grouplist
         self._TunnelQueue = tunnelqueue
-        self._ServerAddress = (ip, port)
-        self._ConnectMaximum = maximum
         self._isRun = False
 
     def start(self):
         '''监听服务启动'''
-
         if (self._TunnelQueue == None):
             return False
         try:
-            self._ServiceSocket = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
-            self._ServiceSocket.bind( self._ServerAddress )
-            self._ServiceSocket.listen( self._ConnectMaximum )
-            self._GeneratorThread = threading.Thread( target = self.generator )
+            globals.G_Log.debug('Listen Service Start Start.')
+            for i in range(self._TunnelGroupNumber):
+                tunnelgroupinfo = self._TunnelGroupList[i]
+                accept_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                address = (tunnelgroupinfo[0], tunnelgroupinfo[1])
+                accept_socket.bind(address)
+                accept_socket.listen(globals.G_LISTEN_CONNECT_HOLDMAX)
+                tunnelgroup = TunnelGroup()
+                tunnelgroup._Accept_Socket = accept_socket
+                tunnelgroup._Info = tunnelgroupinfo
+                generatorThread = threading.Thread(target = self.generator, args = (tunnelgroup,))
+                tunnelgroup._GeneratorThread = generatorThread
+                self._Accepting_TunnelGroupList.append(tunnelgroup)
             self._isRun = True
-            self._GeneratorThread.start()
+            for j in range(len(self._Accepting_TunnelGroupList)):
+                self._Accepting_TunnelGroupList[j]._GeneratorThread.start()
+            globals.G_Log.debug('Listen Service Start End.')
             return True
         except Exception as e:
-            globals.G_Log.error( 'Listen Service Start error! [ListenService.py:ListenService:start] --> %s' %e )
+            globals.G_Log.error('Listen Service Start error! [ListenService.py:ListenService:start] --> %s' %e)
 
     def stop(self):
         '''监听服务停止'''
-
         if (self._isRun == False):
             return True
         try:
-            self._ServiceSocket.shutdown( socket.SHUT_RDWR )
-            self._ServiceSocket.close()
-            self._ServiceSocket = None
+            globals.G_Log.debug('Listen Service Stop Start.')
             self._isRun = False
-            self._GeneratorThread.jion(10)
+            for j in range(len(self._Accepting_TunnelGroupList)):
+                self._Accepting_TunnelGroupList[j]._Accept_Socket.shutdown(socket.SHUT_RDWR)
+                self._Accepting_TunnelGroupList[j]._Accept_Socket.close()
+                self._Accepting_TunnelGroupList[j]._GeneratorThread.jion(10)
+            globals.G_Log.debug('Listen Service Stop End.')
             return True
         except Exception as e:
-            globals.G_Log.error( 'Listen Service Stop error! [ListenService.py:ListenService:stop] --> %s' %e )
+            globals.G_Log.error('Listen Service Stop error! [ListenService.py:ListenService:stop] --> %s' %e)
             return False
 
-    def generator(self):
+    def generator(self, tunnelgroup):
         '''监听等待并分支处理 accept'''
+
+        globals.G_Log.debug('Listen generator Start.')
 
         while (self._isRun == True):
             try:
-                sock, address = self._ServiceSocket.accept()
+                sock, address = tunnelgroup._Accept_Socket.accept()
                 tunnelworker = TunnelWorker()
-                tunnelworker._ClientSocket = sock
+                tunnelworker._Info = tunnelgroup._Info
+                tunnelworker._Client_App_Socket = sock
                 # worker加入到队列
                 self._TunnelQueue.put(tunnelworker)
             except Exception as e:
-                globals.G_Log.error( 'listen generator error! [ListenService.py:ListenService:generator] --> %s' %e )
+                globals.G_Log.error('listen generator error! [ListenService.py:ListenService:generator] --> %s' %e)
