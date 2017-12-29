@@ -1,6 +1,12 @@
 # OrTunnel  
   
 实现数据加密在网络上传输的系统。  
+
+启动例：  
+
+* python3 ortunnel.py --config sample_server.conf  
+  
+
 可选加密方式：  
 
 * ARC4流加密方式  
