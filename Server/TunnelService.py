@@ -1,4 +1,4 @@
-#! C:\Python\Python2\python
+#! 
 # -*-coding: utf-8-*-
 # FileName: TunnelService.py
 
@@ -8,31 +8,42 @@ import queue
 # original
 from Tool import *
 import globals
-from Server.ListenService import *
-from Server.PostService import *
+import Server
+
 
 __all__ = ['TunnelService']
 
 class TunnelService():
-    """TunnelService
-    服务入口"""
+    ''''''
 
-    # 隧道队列
-    _TunnelQueue = None
-    # 监听服务
+    # tunnel group list
+    _TunnelGroupList = None
+    # tunnel worker queue
+    _TunnelWorkerQueue = None
+    # listen service
     _ListenService = None
-    # 送信服务
+    # data post service
     _PostService = None
 
     def __init__(self, maxdata = 128):
-        '''隧道服务初始化
-        maxdata: 最大隧道条数(本地监听最大响应数)'''
+        ''''''
 
-        self._TunnelQueue = queue.Queue(maxsize = maxdata)
-        self._ListenService = ListenService(globals.G_TUNNEL_NUM, globals.G_TUNNEL_GROUP_LIST, self._TunnelQueue)
-        self._PostService = PostService(self._TunnelQueue)
+        self._TunnelGroupList = []
+        self._TunnelWorkerQueue = queue.Queue(maxsize = maxdata)
+        if (globals.G_TUNNEL_METHOD == 'UDP'):
+            self._ListenService = Server.Udp.ListenService(self._TunnelGroupList, self._TunnelWorkerQueue)
+            self._PostService = Server.Udp.PostService(self._TunnelGroupList, self._TunnelWorkerQueue)
+        elif (globals.G_TUNNEL_METHOD == 'TCP'):
+            self._ListenService = Server.Tcp.ListenService(self._TunnelGroupList, self._TunnelWorkerQueue)
+            self._PostService = Server.Tcp.PostService(self._TunnelGroupList, self._TunnelWorkerQueue)
 
     def start(self):
+        ''''''
+
+        if (self._ListenService == None):
+            return False
+        if (self._PostService == None):
+            return False
         ret = True
         if (self._ListenService.start() != True):
             ret = False

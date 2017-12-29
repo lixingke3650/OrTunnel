@@ -3,36 +3,44 @@
 # Filename: globals.py
 
 __all__ = [ \
-    'G_Log', 'G_LOG_NAME', 'G_LOG_LEVEL', 'G_SECRET_FLAG', \
+    'G_MODE', 'G_Log', 'G_LOG_NAME', 'G_LOG_LEVEL', 'G_SECRET_FLAG', \
     'G_SECRET_TYPE', 'G_TLS_CERT', 'G_TLS_KEY', 'G_TLS_CERT_VERIFY', \
     'G_SECRET_KEY', 'G_SOCKET_RECV_MAXSIZE', 'G_LISTEN_CONNECT_HOLDMAX', \
-    'G_TUNNEL_NUM', 'G_TUNNEL_GROUP_LIST' \
+    'G_TUNNEL_METHOD', 'G_TUNNEL_NUM', 'G_TUNNEL_GROUP_INFO', \
+    'G_UDP_BUFFER_MAXQUEUE' \
 ]
 
+# config file
+G_CONFIG_FILE = 'ortunnel.conf'
+# work mode
+G_MODE = None
 # logger
 G_Log = None
-# log 文件名
-G_LOG_NAME = 'OrTunnel'
-# log 输出级别
+# log name
+G_LOG_NAME = 'ortunnel'
+# log output level
 G_LOG_LEVEL = 'INFO'
-# 加解密开关switch
+# secret switch
 G_SECRET_FLAG = False
-# 加解密方式
+# secret type
 G_SECRET_TYPE = None
-# SSL/TLS 证书
+# SSL/TLS cert
 G_TLS_CERT = None
-# SSL/TLS 私钥
+# SSL/TLS secret key
 G_TLS_KEY = None
-# SSL/TLS 证书 (连接方证书，验证用)
+# SSL/TLS secret verify (Unused)
 G_TLS_CERT_VERIFY = None
-# 密钥
+# ARC4 secret key
 G_SECRET_KEY = '1234567890ABCDEF'
-# socket一次读取最大size
+# socket recv maxsize
 G_SOCKET_RECV_MAXSIZE = 65535
-# 最大连接数
+# hold socket max 
 G_LISTEN_CONNECT_HOLDMAX = 0
-# 隧道条数
+# tunnel method
+G_TUNNEL_METHOD = None
+# tunnel num
 G_TUNNEL_NUM = 0
-# 隧道对象 列表结构： [(0:监听IP， 1:监听端口， 2:目标IP， 3:目标端口， 4:最大连接数), ...]
-# G_TUNNEL_GROUP_LIST = [('0.0.0.0', 0, '0.0.0.0', 0, 5), ('0.0.0.0', 0, '0.0.0.0', 0, 10)]
-G_TUNNEL_GROUP_LIST = []
+# tunnel info ： [('0.0.0.0', 0, '0.0.0.0', 0, 5), ('0.0.0.0', 0, '0.0.0.0', 0, 10)]
+G_TUNNEL_GROUP_INFO = []
+# udp buffer queue max num
+G_UDP_BUFFER_MAXQUEUE = 1024

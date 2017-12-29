@@ -1,4 +1,4 @@
-#! C:\Python\Python2\python
+#!
 # -*-coding: utf-8-*-
 # FileName: TunnelService.py
 
@@ -8,38 +8,49 @@ import queue
 # original
 from Tool import *
 import globals
-from Client.ListenService import *
-from Client.PostService import *
+import Client
+
 
 __all__ = ['TunnelService']
 
 class TunnelService():
-    """TunnelService
-    服务入口"""
+    """"""
 
-    # 隧道队列
-    _TunnelQueue = None
-    # 监听服务
+    # tunnel group list
+    _TunnelGroupList = None
+    # tunnel worker queue
+    _TunnelWorkerQueue = None
+    # listen service
     _ListenService = None
-    # 送信服务
+    # data post service
     _PostService = None
 
     def __init__(self, maxdata = 128):
-        '''隧道服务初始化
-        maxdata: 最大隧道条数(本地监听最大响应数)'''
+        ''''''
 
-        self._TunnelQueue = queue.Queue(maxsize = maxdata)
-        self._ListenService = ListenService(globals.G_TUNNEL_NUM, globals.G_TUNNEL_GROUP_LIST, self._TunnelQueue)
-        self._PostService = PostService(self._TunnelQueue)
+        self._TunnelGroupList = []
+        self._TunnelWorkerQueue = queue.Queue(maxsize = maxdata)
+        if (globals.G_TUNNEL_METHOD == 'UDP'):
+            self._ListenService = Client.Udp.ListenService(self._TunnelGroupList, self._TunnelWorkerQueue)
+            self._PostService = Client.Udp.PostService(self._TunnelGroupList, self._TunnelWorkerQueue)
+        elif (globals.G_TUNNEL_METHOD == 'TCP'):
+            self._ListenService = Client.Tcp.ListenService(self._TunnelGroupList, self._TunnelWorkerQueue)
+            self._PostService = Client.Tcp.PostService(self._TunnelGroupList, self._TunnelWorkerQueue)
 
     def start(self):
+        ''''''
+
+        if (self._ListenService == None):
+            return False
+        if (self._PostService == None):
+            return False
         ret = True
         if (self._ListenService.start() != True):
             ret = False
-            globals.G_Log.error( 'Listen Service Start error! [TunnelService.py:TunnelService:start]' )
+            globals.G_Log.error('Listen Service Start error! [TunnelService.py:TunnelService:start]')
         elif (self._PostService.start() != True):
             ret = False
-            globals.G_Log.error( 'Post Service Start error! [TunnelService.py:TunnelService:start]' )
+            globals.G_Log.error('Post Service Start error! [TunnelService.py:TunnelService:start]')
         if (ret != True):
             self._ListenService.stop()
             self._PostService.stop()
@@ -50,5 +61,5 @@ class TunnelService():
         '''服务测试
         '''
 
-        self._PostService.testTunnelGroup(globals.G_TUNNEL_NUM, globals.G_TUNNEL_GROUP_LIST)
+        self._PostService.testTunnelGroup(globals.G_TUNNEL_NUM, globals.G_TUNNEL_GROUP_INFO)
         return True

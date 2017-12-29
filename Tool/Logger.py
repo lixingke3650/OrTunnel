@@ -15,22 +15,23 @@
 import logging
 
 
-__all__ = ["OrroLog", "getLogger"]
+__all__ = ["OrLog", "getLogger"]
 
 _Logger = None
 
-class OrroLog(object):
+class OrLog(object):
     _Logger = None
     _LogHandler = None
     _LogFormat = None
 
-    def __init__(self, name):
+    def __init__(self, name, tab='or'):
         # logger实例获取
         self._Logger = logging.getLogger(name)
         # 指定logger控制器
         self._LogHandler = logging.FileHandler(filename=name + '.log')
         # 设置log格式
-        self._LogFormat = logging.Formatter('%(levelname)-9s %(asctime)s    %(message)s')
+        # self._LogFormat = logging.Formatter('%(levelname)-9s %(asctime)s  %(filename)s[line:%(lineno)d]  %(message)s')
+        self._LogFormat = logging.Formatter('%(levelname)-9s %(asctime)s  ' + tab + ':  %(message)s')
         # 格式信息加载到控制器上
         self._LogHandler.setFormatter(self._LogFormat)
         # 激活控制器信息
@@ -71,10 +72,10 @@ class OrroLog(object):
         self._Logger.critical(mag)
 
 
-def getLogger(name='log'):
+def getLogger(name='log', tab=''):
     global _Logger
     if( _Logger == None ):
-        _Logger  = OrroLog(name)
+        _Logger  = OrLog(name, tab)
 
     return _Logger
 
