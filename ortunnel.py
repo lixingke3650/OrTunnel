@@ -26,8 +26,12 @@ import Client
 #       文件结构调整
 #       Client与Server共用一个启动程序
 #       增加 --config 启动参数，载入配置文件
-__Version__ = 'v0.40'
+# 0.41: 文件结构调整/log修正
 
+__Version__ = 'v0.41'
+
+
+OrTunnelService = None
 
 def run_argparse():
     parser = argparse.ArgumentParser()
@@ -53,10 +57,12 @@ def loadConfig():
     globals.G_TUNNEL_NUM = config.getKeyInt('System','TUNNEL_NUM')
     globals.G_TUNNEL_GROUP_INFO = []
     for i in range(globals.G_TUNNEL_NUM):
-        globals.G_TUNNEL_GROUP_INFO.append((config.getKey('Tunnel'+str(i+1),'LISTEN_IP'), \
+        globals.G_TUNNEL_GROUP_INFO.append((config.getKey('Tunnel'+str(i+1),'APP_METHOD'), \
+                                            config.getKey('Tunnel'+str(i+1),'LISTEN_IP'), \
                                             config.getKeyInt('Tunnel'+str(i+1),'LISTEN_PORT'), \
                                             config.getKey('Tunnel'+str(i+1),'TARGET_HOST'), \
                                             config.getKeyInt('Tunnel'+str(i+1),'TARGET_PORT')))
+
     globals.G_LISTEN_CONNECT_HOLDMAX = config.getKeyInt('System','CONNECT_HOLDMAX')
 
 def globalsInit():
@@ -68,18 +74,22 @@ def init():
     globalsInit()
 
 def start():
+    global OrTunnelService
     if (globals.G_MODE == 'server'):
-        OrTunnelServer = Server.TunnelService()
-        return OrTunnelServer.start()
+        OrTunnelService = Server.TunnelService()
+        return OrTunnelService.start()
     elif (globals.G_MODE == 'client'):
-        OrTunnelServer = Client.TunnelService()
-        return OrTunnelServer.start()
-        # # test
-        # if (OrTunnelClient.testing() != True):
-        #     IO.printX('unable to connect to OrTunnel Server!')
-        #     return False
+        OrTunnelService = Client.TunnelService()
+        return OrTunnelService.start()
     else:
         return False
+
+def test():
+    global OrTunnelService
+    if (globals.G_MODE == 'client'):
+        ret = OrTunnelService.testing()
+        IO.printX('service test: %s' %ret)
+    return
 
 def ortunnel_main():
     IO.printX('OrTunnel (https://github.com/lixingke3650/OrTunnel)')
@@ -99,16 +109,19 @@ def ortunnel_main():
     for i in range(globals.G_TUNNEL_NUM):
         IO.printX('* Tunnel'+str(i+1))
         IO.printX('*   [listen] %s:%d <==> [target] %s:%d' \
-            % (globals.G_TUNNEL_GROUP_INFO[i][0], \
-                globals.G_TUNNEL_GROUP_INFO[i][1], \
-                globals.G_TUNNEL_GROUP_INFO[i][2], \
-                globals.G_TUNNEL_GROUP_INFO[i][3]))
+            % (globals.G_TUNNEL_GROUP_INFO[i][globals.GD_LISTENIP], \
+                globals.G_TUNNEL_GROUP_INFO[i][globals.GD_LISTENPORT], \
+                globals.G_TUNNEL_GROUP_INFO[i][globals.GD_TARGETIP], \
+                globals.G_TUNNEL_GROUP_INFO[i][globals.GD_TARGETPORT]))
     IO.printX('============================================================')
     IO.printX('')
 
     if (start() != True):
         IO.printX('OrTunnel Service Start Failed.')
         return
+
+    # test
+    test()
 
     IO.printX('OrTunnel Service Started.')
     IO.printX('')

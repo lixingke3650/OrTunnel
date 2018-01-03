@@ -20,14 +20,14 @@ class PostService():
     _TunnelGroupList = None
     _TunnelWorkerQueue = None
     _WorkerThread = None
-    _StartingWorkerList = None
+    _tunnelWorksManager = None
     _isRun = False
 
-    def __init__(self, tunnelgrouplist, tunnelwokerqueue):
+    def __init__(self, tunnelgrouplist, tunnelwokerqueue, tunnelworksmanager):
         '''  '''
         self._TunnelGroupList = tunnelgrouplist
         self._TunnelWorkerQueue = tunnelwokerqueue
-        self._StartingWorkerList = []
+        self._tunnelWorksManager = tunnelworksmanager
         self._isRun = False
         self._TunnelWorkThreadRLock = threading.RLock()
 
@@ -41,59 +41,57 @@ class PostService():
             self._WorkerThread.start()
             return True
         except Exception as e:
-            globals.G_Log.error('Worker Service Start error! [TunnelWorker.py:TunnelWorkerService:start] --> %s' %e)
+            globals.G_Log.error('Worker Service Start error! [TunnelWorker.py:start] --> %s' %e)
             return False
 
     def stop(self):
         '''  '''
         if (self._isRun == False):
             return True
-        if (self._StartingWorkerList == None):
+
+        workerlist = self._tunnelWorksManager('get')
+        if (workerlist == None):
             return True
+
         try:
             self._isRun = False
-            # stop worker in the _StartingWorkerList
-            while tunnelworker in self._StartingWorkerList:
+            # stop worker in the workerlist
+            while tunnelworker in workerlist:
                 self.abolishworker(tunnelworker)
             self._WorkerThread.join(10)
             return True
         except Exception as e:
-            globals.G_Log.error('Worker Service Stop error! [TunnelWorker.py:TunnelWorkerService:stop] --> %s' %e)
+            globals.G_Log.error('Worker Service Stop error! [PostService.py:stop] --> %s' %e)
             return False
 
     def abolishworker(self, tunnelworker):
         '''worker stop'''
 
-        return
-
         try:
             if (tunnelworker._isEnable == True):
-                if (tunnelworker._Server_Client_Socket != None):
-                    tunnelworker._Server_Client_Socket.shutdown(socket.SHUT_RDWR)
-                    tunnelworker._Server_Client_Socket.close()
-                    tunnelworker._Server_Client_Socket = None
-                if (tunnelworker._Server_App_Socket != None):
-                    tunnelworker._Server_App_Socket.shutdown(socket.SHUT_RDWR)
-                    tunnelworker._Server_App_Socket.close()
-                    tunnelworker._Server_App_Socket = None
+                if (tunnelworker._Client_Server_Socket != None):
+                    tunnelworker._Client_Server_Socket.shutdown(socket.SHUT_RDWR)
+                    tunnelworker._Client_Server_Socket.close()
+                    tunnelworker._Client_Server_Socket = None
+                if (tunnelworker._Client_App_Socket != None):
+                    tunnelworker._Client_App_Socket.shutdown(socket.SHUT_RDWR)
+                    tunnelworker._Client_App_Socket.close()
+                    tunnelworker._Client_App_Socket = None
                 try:
-                    ret = self.tunnelworksmanager('del', tunnelworker)
+                    ret = self._tunnelWorksManager('del', tunnelworker)
                     tunnelworker._isEnable = False
-                    # LOG LEVEL是DEBUG时，输出运行信息
-                    if (globals.G_LOG_LEVEL == 'DEBUG'):
-                        IO.printX('worker del %d' %ret)
-                except:
+                except Exception as e:
                     # tunnel worker delete error
                     # 可能存在多重删除的情况，输出DEBUG日志
-                    globals.G_Log.debug('Worker abolish delete error! [TunnelWorker.py:TunnelWorkerService:abolishworker] --> %s' %e)
+                    globals.G_Log.debug('Worker abolish delete error! [TunnelWorker.py:abolishworker] --> %s' %e)
         except EnvironmentError as e:
             # socket二次关闭，输出DEBUG日志
-            globals.G_Log.debug('Worker abolish EnvironmentError! [TunnelWorker.py:TunnelWorkerService:abolishworker] --> %s' %e)
+            globals.G_Log.debug('Worker abolish EnvironmentError! [TunnelWorker.py:abolishworker] --> %s' %e)
         except AttributeError as e:
             # socket被关闭后无法读写，输出DEBUG日志
-            globals.G_Log.debug('Worker abolish AttributeError! [TunnelWorker.py:TunnelWorkerService:abolishworker] --> %s' %e)
+            globals.G_Log.debug('Worker abolish AttributeError! [TunnelWorker.py:abolishworker] --> %s' %e)
         except Exception as e:
-            globals.G_Log.error('Worker abolish error! [TunnelWorker.py:TunnelWorkerService:abolishworker] --> %s' %e)
+            globals.G_Log.error('Worker abolish error! [TunnelWorker.py:abolishworker] --> %s' %e)
 
     def workerlisten(self):
         ''' '''
@@ -103,23 +101,18 @@ class PostService():
                 launchthread = threading.Thread(target = self.launchworker, args = (tunnelworker,))
                 launchthread.start()
         except Exception as e:
-            globals.G_Log.error('Worker abolish error! [TunnelWorker.py:TunnelWorkerService:workerlisten] --> %s' %e)
+            globals.G_Log.error('Worker abolish error! [TunnelWorker.py:workerlisten] --> %s' %e)
 
     def launchworker(self, tunnelworker):
         ''' '''
+        globals.G_Log.info('launchworker start.')
+
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            # SSL Socket
-            if (globals.G_SECRET_FLAG == True and globals.G_SECRET_TYPE == 'SSL'):
-                sock = ssl.wrap_socket( sock,                           \
-                                        server_side=True,               \
-                                        certfile=globals.G_TLS_CERT,    \
-                                        keyfile=globals.G_TLS_KEY,      \
-                                        ssl_version=ssl.PROTOCOL_TLSv1)
-            # ARC4 Crypt
-            elif (globals.G_SECRET_FLAG == True and globals.G_SECRET_TYPE == 'ARC4'):
-                tunnelworker._Crypt = Crypt.CrypterARC4(globals.G_SECRET_KEY)
             tunnelworker._Client_Server_Socket = sock
+
+            self.protectworker(tunnelworker)
+
             ctosthread = threading.Thread(target = self.ctosrun, args = (tunnelworker,))
             stocthread = threading.Thread(target = self.stocrun, args = (tunnelworker,))
             tunnelworker._CToSThread = ctosthread
@@ -127,99 +120,106 @@ class PostService():
             ctosthread.start()
             stocthread.start()
         except Exception as e:
-            globals.G_Log.error('Worker Launch error! [TunnelWorker.py:TunnelWorkerService:launchworker] --> %s' %e)
+            globals.G_Log.error('Worker Launch error! [TunnelWorker.py:launchworker] --> %s' %e)
 
     def ctosrun(self, tunnelworker):
         ''' '''
+        globals.G_Log.info('ctosrun start.')
+
+        enbuffer = None
+        if (globals.G_SECRET_FLAG == True and globals.G_SECRET_TYPE == 'ARC4'):
+            enbuffer = self.arc4_enbuffer
+        elif (globals.G_SECRET_FLAG == True and globals.G_SECRET_TYPE == 'SSL'):
+            enbuffer = self.ssl_enbuffer
+        else :
+            enbuffer = self.no_enbuffer
+
         try:
-            if (globals.G_SECRET_FLAG == True and globals.G_SECRET_TYPE == 'ARC4'):
-                while True:
-                    buffer = tunnelworker._Client_App_Socket.recv(globals.G_SOCKET_RECV_MAXSIZE)
-                    if not buffer:
-                        globals.G_Log.info( 'client socket close. [PostService.py:PostService:ctosrun]')
-                        break
-                    tunnelworker._Client_Server_Socket.sendto(tunnelworker._Crypt.enCrypt(buffer), (tunnelworker._TunnelGroup._TargetIP, tunnelworker._TunnelGroup._TargetPort))
-                    tunnelworker._isSendAlready = True
-            else :
-                while True:
-                    buffer = tunnelworker._Client_App_Socket.recv(globals.G_SOCKET_RECV_MAXSIZE)
-                    if not buffer:
-                        globals.G_Log.info( 'client socket close. [PostService.py:PostService:ctosrun]')
-                        break
-                    tunnelworker._Client_Server_Socket.sendto(buffer, (tunnelworker._TunnelGroup._TargetIP, tunnelworker._TunnelGroup._TargetPort))
-                    tunnelworker._isSendAlready = True
+            while True:
+                buffer = tunnelworker._Client_App_Socket.recv(globals.G_SOCKET_RECV_MAXSIZE)
+                if not buffer:
+                    globals.G_Log.info( 'client socket close. [PostService.py:ctosrun]')
+                    break
+                serveraddr = (tunnelworker._TunnelGroup._TargetIP, tunnelworker._TunnelGroup._TargetPort)
+                tunnelworker._Client_Server_Socket.sendto(enbuffer(tunnelworker, buffer), serveraddr)
+                tunnelworker._isSendAlready = True
+
         except AttributeError as e:
             # socket被关闭后无法读写，输出DEBUG日志
-            globals.G_Log.debug('data post for client to server TypeError! [PostService.py:PostService:ctosrun] --> %s' %e)
+            globals.G_Log.debug('data post for client to server TypeError! [PostService.py:ctosrun] --> %s' %e)
         except socket.error as e:
             if e.errno == 10054 or e.errno == 10053 or e.errno == 10058:
                 # socket主动关闭的情况下，输出DEBUG日志
-                globals.G_Log.debug('data post for client to server socket.error %d! [PostService.py:PostService:ctosrun] --> %s' %(e.errno,e))
+                globals.G_Log.debug('data post for client to server socket.error %d! [PostService.py:ctosrun] --> %s' %(e.errno,e))
             else:
-                globals.G_Log.error('data post for client to server socket.error %d! [PostService.py:PostService:ctosrun] --> %s' %(e.errno,e))
+                globals.G_Log.error('data post for client to server socket.error %d! [PostService.py:ctosrun] --> %s' %(e.errno,e))
         except Exception as e:
-            globals.G_Log.error('data post for client to server error! [PostService.py:PostService:ctosrun] --> %s' %e)
+            globals.G_Log.error('data post for client to server error! [PostService.py:ctosrun] --> %s' %e)
         finally:
             self.abolishworker(tunnelworker)
 
     def stocrun(self, tunnelworker):
         ''' '''
+        globals.G_Log.info('stocrun start.')
+
         while (tunnelworker._isSendAlready == False):
             continue
+
+        debuffer = None
+        if (globals.G_SECRET_FLAG == True and globals.G_SECRET_TYPE == 'ARC4'):
+            debuffer = self.arc4_debuffer
+        elif (globals.G_SECRET_FLAG == True and globals.G_SECRET_TYPE == 'SSL'):
+            debuffer = self.ssl_debuffer
+        else :
+            debuffer = self.no_debuffer
+
         try:
-            if (globals.G_SECRET_FLAG == True and globals.G_SECRET_TYPE == 'ARC4'):
-                while True:
-                    buffer, addr = tunnelworker._Client_Server_Socket.recvfrom(globals.G_SOCKET_RECV_MAXSIZE)
-                    if not buffer:
-                        globals.G_Log.info('server socket close. [PostService.py:PostService:stocrun]')
-                        break
-                    tunnelworker._Client_App_Socket.sendall(tunnelworker._Crypt.deCrypt(buffer))
-            else :
-                while True:
-                    buffer, addr = tunnelworker._Client_Server_Socket.recvfrom(globals.G_SOCKET_RECV_MAXSIZE)
-                    if not buffer:
-                        globals.G_Log.info('server socket close. [PostService.py:PostService:stocrun]')
-                        break
-                    tunnelworker._Client_App_Socket.sendall(buffer)
+            while True:
+                buffer, addr = tunnelworker._Client_Server_Socket.recvfrom(globals.G_SOCKET_RECV_MAXSIZE)
+                if not buffer:
+                    globals.G_Log.info('server socket close. [PostService.py:stocrun]')
+                    break
+                tunnelworker._Client_App_Socket.sendall(debuffer(tunnelworker, buffer))
+
         except AttributeError as e:
             # socket被关闭后无法读写，输出DEBUG日志
-            globals.G_Log.debug('data post for server to client TypeError! [PostService.py:PostService:stocrun] --> %s' %e)
+            globals.G_Log.debug('data post for server to client TypeError! [PostService.py:stocrun] --> %s' %e)
         except socket.error as e:
             if e.errno == 10054 or e.errno == 10053 or e.errno == 10058:
                 # socket主动关闭的情况下，输出DEBUG日志
-                globals.G_Log.debug('data post for server to client socket.error %d! [PostService.py:PostService:stocrun] --> %s' %(e.errno,e))
+                globals.G_Log.debug('data post for server to client socket.error %d! [PostService.py:stocrun] --> %s' %(e.errno,e))
             else:
-                globals.G_Log.error('data post for server to client socket.error %d! [PostService.py:PostService:stocrun] --> %s' %(e.errno,e))
+                globals.G_Log.error('data post for server to client socket.error %d! [PostService.py:stocrun] --> %s' %(e.errno,e))
         except Exception as e:
-            globals.G_Log.error('data post for server to client error! [PostService.py:PostService:stocrun] --> %s' %e)
+            globals.G_Log.error('data post for server to client error! [PostService.py:stocrun] --> %s' %e)
         finally:
             self.abolishworker(tunnelworker)
 
-    def tunnelworksmanager( self, oper, tunnelworker ):
-        '''proxyworks add and del.
-        oper: add or del'''
+    def protectworker(self, tunnelworker):
+        # SSL Socket
+        if (globals.G_SECRET_FLAG == True and globals.G_SECRET_TYPE == 'SSL'):
+            tunnelworker._Client_Server_Socket = ssl.wrap_socket( tunnelworker._Client_Server_Socket,   \
+                                                                  ca_certs=globals.G_TLS_CERT_VERIFY, \
+                                                                  cert_reqs=ssl.CERT_REQUIRED)
+        # ARC4 Crypt
+        elif (globals.G_SECRET_FLAG == True and globals.G_SECRET_TYPE == 'ARC4'):
+            tunnelworker._Crypt = Crypt.CrypterARC4(globals.G_SECRET_KEY)
+        return
 
-        # work total
-        ret = 0
-        # thread lock
-        self._TunnelWorkThreadRLock.acquire()
-        try:
-            if( oper == 'add' ):
-                if ((tunnelworker in self._TunnelWorks) == False):
-                    self._TunnelWorks.append( tunnelworker )
-            elif( oper == 'del' ):
-                if ((tunnelworker in self._TunnelWorks) == True):
-                    self._TunnelWorks.remove( tunnelworker )
-            ret = len( self._TunnelWorks )
-        except Exception as e:
-            globals.G_Log.error( 'tunnelworks add or del error! [PostService.py:PostService:tunnelworksmanager] --> %s' %e )
-        # thread unlock
-        self._TunnelWorkThreadRLock.release()
-        # work total
-        return ret;
+    def no_enbuffer(self, tunnelworker, buffer):
+        return buffer
 
+    def no_debuffer(self, tunnelworker, buffer):
+        return buffer
 
-    def testTunnelGroup(self, groupnumber, grouplist):
-        '''network test'''
+    def ssl_enbuffer(self, tunnelworker, buffer):
+        return buffer
 
-        IO.printX('tunnel method is UDP. test skip.')
+    def ssl_debuffer(self, tunnelworker, buffer):
+        return buffer
+
+    def arc4_enbuffer(self, tunnelworker, buffer):
+        return tunnelworker._Crypt.enCrypt(buffer)
+
+    def arc4_debuffer(self, tunnelworker, buffer):
+        return tunnelworker._Crypt.deCrypt(buffer)
