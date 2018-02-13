@@ -12,6 +12,7 @@ __all__ = ['TunnelGroup', 'TunnelWorker']
 
 class TunnelGroup():
     ''' '''
+    _APPMethod = ''
     _ListenIP = ''
     _ListenPort = 0
     _TargetIP = ''
@@ -26,6 +27,5 @@ class TunnelWorker():
     _CToSThread = None
     _StoCThread = None
     _isEnable = False
-    _isSendAlready = False
     _Crypt = None
     _TunnelGroup = None

@@ -7,6 +7,7 @@ import socket
 import threading
 import queue
 import ssl
+from collections import deque
 
 # original
 from Tool import *
@@ -43,10 +44,14 @@ class ListenService():
             return False
 
         try:
-            globals.G_Log.debug('Listen Service Start. _TunnelGroupNumber %d' %self._TunnelGroupNumber)
+            globals.G_Log.debug('Listen Service Start.')
             for i in range(self._TunnelGroupNumber):
                 tunnelgroupinfo = self._TunnelGroupInfo[i]
                 listen_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, globals.G_SOCKET_UDP_SEND_BUFFERSIZE)
+                listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, globals.G_SOCKET_UDP_RECV_BUFFERSIZE)
+                globals.G_Log.info('listen socket send buffer size: %d' %(listen_socket.getsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF)))
+                globals.G_Log.info('listen socket recv buffer size: %d' %(listen_socket.getsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF)))
 
                 tunnelgroup = TunnelGroup()
                 tunnelgroup._Listen_Socket = listen_socket
@@ -94,14 +99,16 @@ class ListenService():
 
         try:
             while (self._isRun == True):
-                buffer, server_client_addr = sock.recvfrom(globals.G_SOCKET_RECV_MAXSIZE)
+                buffer, server_client_addr = sock.recvfrom(globals.G_SOCKET_RECV_MAXSIZE_UDP)
                 tunnelworker = self.get_tunnelworker(server_client_addr)
                 if tunnelworker == None:
+                    globals.G_Log.debug('Listen generator Create New TunnelWorker: %s.' %str(server_client_addr))
                     tunnelworker = TunnelWorker()
                     tunnelworker._TunnelGroup = tunnelgroup
                     tunnelworker._Server_Client_Socket = sock
                     tunnelworker._FromClientAddr = server_client_addr
                     tunnelworker._Buffer_Queue = queue.Queue(maxsize = globals.G_UDP_BUFFER_MAXQUEUE)
+                    # tunnelworker._Buffer_Deque = deque()
 
                     # protect data
                     self.protectworker(tunnelworker)
@@ -110,8 +117,11 @@ class ListenService():
                     # add worker to _TunnelWorkerList
                     self._TunnelWorkerQueue.put(tunnelworker)
                     ret = self._tunnelWorksManager('add', tunnelworker)
-
                 tunnelworker._Buffer_Queue.put(buffer)
+                # >>>>
+                # globals.G_Log.info('tunnelworker._Buffer_Queue: %d ' %tunnelworker._Buffer_Queue.qsize())
+                # <<<<
+                # tunnelworker._Buffer_Deque.append(buffer)
         except Exception as e:
             globals.G_Log.error('listen generator error! [ListenService.py:generator] --> %s' %e)
 

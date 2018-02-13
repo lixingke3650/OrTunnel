@@ -26,6 +26,5 @@ class TunnelWorker():
     _CToSThread = None
     _StoCThread = None
     _isEnable = False
-    _isSendAlready = False
     _Crypt = None
     _TunnelGroup = None

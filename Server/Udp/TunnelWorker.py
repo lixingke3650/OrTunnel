@@ -29,4 +29,5 @@ class TunnelWorker():
     _Crypt = None
     _FromClientAddr = None
     _Buffer_Queue = None
+    _Buffer_Deque = None
     _TunnelGroup = None

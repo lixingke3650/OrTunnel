@@ -144,15 +144,15 @@ class PostService():
 
         except AttributeError as e:
             # socket被关闭后无法读写，输出DEBUG日志
-            globals.G_Log.debug( 'data post for server to client TypeError! [PostService.py:ctosrun] --> %s' %e )
+            globals.G_Log.debug('data post from server to client TypeError! [PostService.py:ctosrun] --> %s' %e)
         except socket.error as e:
             if e.errno == 10054 or e.errno == 10053 or e.errno == 10058:
                 # socket主动关闭的情况下，输出DEBUG日志
-                globals.G_Log.debug( 'data post for server to client socket.error! [PostService.py:ctosrun] --> %s' %e )
+                globals.G_Log.debug('data post from server to client socket.error! [PostService.py:ctosrun] --> %s' %e)
             else:
-                globals.G_Log.error( 'data post for server to client socket.error! [PostService.py:ctosrun] --> %s' %e )
+                globals.G_Log.error('data post from server to client socket.error! [PostService.py:ctosrun] --> %s' %e)
         except Exception as e:
-            globals.G_Log.error( 'data post for server to client error! [PostService.py:ctosrun] --> %s' %e )
+            globals.G_Log.error('data post from server to client error! [PostService.py:ctosrun] --> %s' %e)
         finally:
             self.abolishworker(tunnelworker)
 
@@ -176,15 +176,15 @@ class PostService():
 
         except AttributeError as e:
             # socket被关闭后无法读写，输出DEBUG日志
-            globals.G_Log.debug('data post for server to client TypeError! [PostService.py:stocrun] --> %s' %e)
+            globals.G_Log.debug('data post from server to client TypeError! [PostService.py:stocrun] --> %s' %e)
         except socket.error as e:
             if e.errno == 10054 or e.errno == 10053 or e.errno == 10058:
                 # socket主动关闭的情况下，输出DEBUG日志
-                globals.G_Log.debug('data post for server to client socket.error %d! [PostService.py:stocrun] --> %s' %(e.errno, e))
+                globals.G_Log.debug('data post from server to client socket.error %d! [PostService.py:stocrun] --> %s' %(e.errno, e))
             else:
-                globals.G_Log.error('data post for server to client socket.error %d! [PostService.py:stocrun] --> %s' %(e.errno, e))
+                globals.G_Log.error('data post from server to client socket.error %d! [PostService.py:stocrun] --> %s' %(e.errno, e))
         except Exception as e:
-            globals.G_Log.error('data post for server to client error! [PostService.py:stocrun] --> %s' %e)
+            globals.G_Log.error('data post from server to client error! [PostService.py:stocrun] --> %s' %e)
         finally:
             self.abolishworker(tunnelworker)
 

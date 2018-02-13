@@ -97,6 +97,10 @@ class ListenService():
         while (self._isRun == True):
             try:
                 sock, address = tunnelgroup._Listen_Socket.accept()
+                sock.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, globals.G_SOCKET_RECV_MAXSIZE_UDP_APP)
+                sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, globals.G_SOCKET_RECV_MAXSIZE_UDP_APP)
+                globals.G_Log.info('app socket send buffer size: %d' %(sock.getsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF)))
+                globals.G_Log.info('app socket recv buffer size: %d' %(sock.getsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF)))
 
                 tunnelworker = TunnelWorker()
                 tunnelworker._TunnelGroup = tunnelgroup

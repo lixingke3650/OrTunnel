@@ -27,8 +27,9 @@ import Client
 #       Client与Server共用一个启动程序
 #       增加 --config 启动参数，载入配置文件
 # 0.41: 文件结构调整/log修正
+# 0.42： UDP发包间隔追加(一定程度防丢包)
 
-__Version__ = 'v0.41'
+__Version__ = 'v0.42'
 
 
 OrTunnelService = None
