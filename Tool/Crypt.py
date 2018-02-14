@@ -106,9 +106,10 @@ Jacob Schuldt
     def gear(self, buffer):
         '''异或操作 buffer is bytes'''
 
-        out = []
-        for c in buffer:
-            out.append(c ^ self.opergen().__next__())
+        # out = []
+        # for c in buffer:
+        #     out.append(c ^ self.opergen().__next__())
+        out = [n ^ self.opergen().__next__() for n in buffer]
         return bytes(out)
 
     def gearstr(self, buffer):

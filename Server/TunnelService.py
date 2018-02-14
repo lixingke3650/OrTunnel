@@ -36,13 +36,8 @@ class TunnelService():
         self._TunnelWorkerList = []
         self._TunnelWorkerQueue = queue.Queue(maxsize = maxdata)
         self._TunnelWorkThreadRLock = threading.RLock()
-
-        if (globals.G_TUNNEL_METHOD == 'UDP'):
-            self._ListenService = Server.Udp.ListenService(self._TunnelGroupList, self._TunnelWorkerQueue, self.tunnelworksmanager)
-            self._PostService = Server.Udp.PostService(self._TunnelGroupList, self._TunnelWorkerQueue, self.tunnelworksmanager)
-        elif (globals.G_TUNNEL_METHOD == 'TCP'):
-            self._ListenService = Server.Tcp.ListenService(self._TunnelGroupList, self._TunnelWorkerQueue, self.tunnelworksmanager)
-            self._PostService = Server.Tcp.PostService(self._TunnelGroupList, self._TunnelWorkerQueue, self.tunnelworksmanager)
+        self._ListenService = Server.ListenService(self._TunnelGroupList, self._TunnelWorkerQueue, self.tunnelworksmanager)
+        self._PostService = Server.PostService(self._TunnelGroupList, self._TunnelWorkerQueue, self.tunnelworksmanager)
 
     def start(self):
         ''''''
