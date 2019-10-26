@@ -200,7 +200,7 @@ class ListenService():
                                                                   server_side=True,               \
                                                                   certfile=globals.G_TLS_CERT,    \
                                                                   keyfile=globals.G_TLS_KEY,      \
-                                                                  ssl_version=ssl.PROTOCOL_TLSv1)
+                                                                  ssl_version=ssl.PROTOCOL_TLS)
         # ARC4 Crypt
         elif (globals.G_SECRET_FLAG == True and globals.G_SECRET_TYPE == 'ARC4'):
             tunnelworker._Crypt = Crypt.CrypterARC4(globals.G_SECRET_KEY)

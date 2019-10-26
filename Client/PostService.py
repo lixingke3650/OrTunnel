@@ -314,7 +314,8 @@ class PostService():
         # SSL Socket
         if (globals.G_SECRET_FLAG == True and globals.G_SECRET_TYPE == 'SSL'):
             tunnelworker._Client_Server_Socket = ssl.wrap_socket( tunnelworker._Client_Server_Socket,   \
-                                                                  ca_certs=globals.G_TLS_CERT_VERIFY, \
+                                                                  ca_certs=globals.G_TLS_CERT_VERIFY,   \
+                                                                  ssl_version=ssl.PROTOCOL_TLS, \
                                                                   cert_reqs=ssl.CERT_REQUIRED)
         # ARC4 Crypt
         elif (globals.G_SECRET_FLAG == True and globals.G_SECRET_TYPE == 'ARC4'):
