@@ -76,7 +76,7 @@ class ListenService():
                 globals.G_Log.debug('Listen Service Start End.')
                 return True
             except Exception as e:
-                globals.G_Log.error('Listen Service Start error! [ListenService.py:ListenService:start] --> %s' %e)
+                globals.G_Log.error('Listen Service Start error! --> %s' %e)
         
         elif (globals.G_TUNNEL_METHOD == 'UDP'):
             try:
@@ -106,7 +106,7 @@ class ListenService():
                 globals.G_Log.debug('Listen Service Start End.')
                 return True
             except Exception as e:
-                globals.G_Log.error('Listen Service Start error! [ListenService.py:start] --> %s' %e)
+                globals.G_Log.error('Listen Service Start error! --> %s' %e)
 
     def stop(self):
         '''监听服务停止'''
@@ -122,7 +122,7 @@ class ListenService():
             globals.G_Log.debug('Listen Service Stop End.')
             return True
         except Exception as e:
-            globals.G_Log.error('Listen Service Stop error! [ListenService.py:stop] --> %s' %e)
+            globals.G_Log.error('Listen Service Stop error! --> %s' %e)
             return False
 
     def generator_tcp(self, tunnelgroup):
@@ -150,7 +150,7 @@ class ListenService():
                 # IO.printX('accept: %s' %str(address))
                 globals.G_Log.info('accept: %s' %str(address))
             except Exception as e:
-                globals.G_Log.error('listen generator error! [ListenService.py:ListenService:generator] --> %s' %e)
+                globals.G_Log.error('listen generator error! --> %s' %e)
 
     def generator_udp(self, tunnelgroup):
         '''监听等待并分支处理'''
@@ -185,7 +185,7 @@ class ListenService():
                 # <<<<
                 # tunnelworker._Buffer_Deque.append(buffer)
         except Exception as e:
-            globals.G_Log.error('listen generator error! [ListenService.py:generator] --> %s' %e)
+            globals.G_Log.error('listen generator error! --> %s' %e)
 
     def get_tunnelworker(self, addr):
         for tunnelworker in self._tunnelWorksManager('get'):

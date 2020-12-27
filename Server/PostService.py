@@ -41,7 +41,7 @@ class PostService():
             self._WorkerThread.start()
             return True
         except Exception as e:
-            globals.G_Log.error('Worker Service Start error! [PostService.py:start] --> %s' %e)
+            globals.G_Log.error('Worker Service Start error! --> %s' %e)
             return False
 
     def stop(self):
@@ -61,7 +61,7 @@ class PostService():
             self._WorkerThread.join(10)
             return True
         except Exception as e:
-            globals.G_Log.error('Worker Service Stop error! [PostService.py:stop] --> %s' %e)
+            globals.G_Log.error('Worker Service Stop error! --> %s' %e)
             return False
 
     def abolishworker(self, tunnelworker):
@@ -83,15 +83,15 @@ class PostService():
                 except Exception as e:
                     # tunnel worker delete error
                     # 可能存在多重删除的情况，输出DEBUG日志
-                    globals.G_Log.debug('Worker abolish delete error! [PostService.py:abolishworker] --> %s' %e)
+                    globals.G_Log.debug('Worker abolish delete error! --> %s' %e)
         except EnvironmentError as e:
             # socket二次关闭，输出DEBUG日志
-            globals.G_Log.debug('Worker abolish EnvironmentError! [PostService.py:abolishworker] --> %s' %e)
+            globals.G_Log.debug('Worker abolish EnvironmentError! --> %s' %e)
         except AttributeError as e:
             # socket被关闭后无法读写，输出DEBUG日志
-            globals.G_Log.debug('Worker abolish AttributeError! [PostService.py:abolishworker] --> %s' %e)
+            globals.G_Log.debug('Worker abolish AttributeError! --> %s' %e)
         except Exception as e:
-            globals.G_Log.error('Worker abolish error! [PostService.py:abolishworker] --> %s' %e)
+            globals.G_Log.error('Worker abolish error! --> %s' %e)
 
     def workerlisten(self):
         ''' '''
@@ -101,7 +101,7 @@ class PostService():
                 launchthread = threading.Thread(target = self.launchworker, args = (tunnelworker,))
                 launchthread.start()
         except Exception as e:
-            globals.G_Log.error('Worker abolish error! [PostService.py:workerlisten] --> %s' %e)
+            globals.G_Log.error('Worker abolish error! --> %s' %e)
 
     def launchworker(self, tunnelworker):
         ''' '''
@@ -127,7 +127,7 @@ class PostService():
             stocthread.start()
             tunnelworker._isEnable = True
         except Exception as e:
-            globals.G_Log.error('Worker Launch error! [PostService.py:launchworker] --> %s' %e)
+            globals.G_Log.error('Worker Launch error! --> %s' %e)
 
     def ctosrun_tcp(self, tunnelworker):
         ''''''
@@ -143,21 +143,21 @@ class PostService():
             while True:
                 buffer = tunnelworker._Server_Client_Socket.recv(globals.G_SOCKET_RECV_MAXSIZE)
                 if not buffer:
-                    globals.G_Log.info('client socket close. [PostService.py:PostService:ctosrun]')
+                    globals.G_Log.info('client socket close.')
                     break
                 tunnelworker._Server_App_Socket.sendall(debuffer(tunnelworker, buffer))
 
         except AttributeError as e:
             # socket被关闭后无法读写，输出DEBUG日志
-            globals.G_Log.debug('data post from client to server TypeError! [PostService.py:PostService:ctosrun] --> %s' %e)
+            globals.G_Log.debug('data post from client to server TypeError! --> %s' %e)
         except socket.error as e:
             if e.errno == 10054 or e.errno == 10053 or e.errno == 10058:
                 # socket主动关闭的情况下，输出DEBUG日志
-                globals.G_Log.debug('data post from client to server socket.error %d! [PostService.py:PostService:ctosrun] --> %s' %(e.errno,e))
+                globals.G_Log.debug('data post from client to server socket.error %d! --> %s' %(e.errno,e))
             else:
-                globals.G_Log.error('data post from client to server socket.error %d! [PostService.py:PostService:ctosrun] --> %s' %(e.errno,e))
+                globals.G_Log.error('data post from client to server socket.error %d! --> %s' %(e.errno,e))
         except Exception as e:
-            globals.G_Log.error('data post from client to server error! [PostService.py:PostService:ctosrun] --> %s' %e)
+            globals.G_Log.error('data post from client to server error! --> %s' %e)
         finally:
             self.abolishworker(tunnelworker)
 
@@ -175,21 +175,21 @@ class PostService():
             while True:
                 buffer = tunnelworker._Server_App_Socket.recv(globals.G_SOCKET_RECV_MAXSIZE)
                 if not buffer:
-                    globals.G_Log.info('server socket close. [PostService.py:PostService:stocrun]')
+                    globals.G_Log.info('server socket close.')
                     break
                 tunnelworker._Server_Client_Socket.sendall(enbuffer(tunnelworker, buffer))
 
         except AttributeError as e:
             # socket被关闭后无法读写，输出DEBUG日志
-            globals.G_Log.debug('data post from server to client TypeError! [PostService.py:PostService:stocrun] --> %s' %e)
+            globals.G_Log.debug('data post from server to client TypeError! --> %s' %e)
         except socket.error as e:
             if e.errno == 10054 or e.errno == 10053 or e.errno == 10058:
                 # socket主动关闭的情况下，输出DEBUG日志
-                globals.G_Log.debug('data post from server to client socket.error %d! [PostService.py:PostService:stocrun] --> %s' %(e.errno,e))
+                globals.G_Log.debug('data post from server to client socket.error %d! --> %s' %(e.errno,e))
             else:
-                globals.G_Log.error('data post from server to client socket.error %d! [PostService.py:PostService:stocrun] --> %s' %(e.errno,e))
+                globals.G_Log.error('data post from server to client socket.error %d! --> %s' %(e.errno,e))
         except Exception as e:
-            globals.G_Log.error('data post from server to client error! [PostService.py:PostService:stocrun] --> %s' %e)
+            globals.G_Log.error('data post from server to client error! --> %s' %e)
         finally:
             self.abolishworker(tunnelworker)
 
@@ -213,21 +213,21 @@ class PostService():
                 # <<<<
                 # buffer = tunnelworker._Buffer_Deque.leftpop()
                 if not buffer:
-                    globals.G_Log.info('client socket close. [PostService.py:ctosrun]')
+                    globals.G_Log.info('client socket close.')
                     break
                 tunnelworker._Server_App_Socket.sendall(debuffer(tunnelworker, buffer))
 
         except AttributeError as e:
             # socket被关闭后无法读写，输出DEBUG日志
-            globals.G_Log.debug('data post from client to server TypeError! [PostService.py:ctosrun] --> %s' %e)
+            globals.G_Log.debug('data post from client to server TypeError! --> %s' %e)
         except socket.error as e:
             if e.errno == 10054 or e.errno == 10053 or e.errno == 10058:
                 # socket主动关闭的情况下，输出DEBUG日志
-                globals.G_Log.debug('data post from client to server socket.error %d! [PostService.py:ctosrun] --> %s' %(e.errno,e))
+                globals.G_Log.debug('data post from client to server socket.error %d! --> %s' %(e.errno,e))
             else:
-                globals.G_Log.error('data post from client to server socket.error %d! [PostService.py:ctosrun] --> %s' %(e.errno,e))
+                globals.G_Log.error('data post from client to server socket.error %d! --> %s' %(e.errno,e))
         except Exception as e:
-            globals.G_Log.error('data post from client to server error! [PostService.py:ctosrun] --> %s' %e)
+            globals.G_Log.error('data post from client to server error! --> %s' %e)
         finally:
             self.abolishworker(tunnelworker)
 
@@ -250,7 +250,7 @@ class PostService():
                 # globals.G_Log.info('stocrun data size: %d' %len(buffer))
                 # <<<<
                 if not buffer:
-                    globals.G_Log.info('server socket close. [PostService.py:stocrun]')
+                    globals.G_Log.info('server socket close.')
                     break
                 tunnelworker._Server_Client_Socket.sendto(enbuffer(tunnelworker, buffer), tunnelworker._FromClientAddr)
                 if (globals.G_SOCKET_SENTTO_DELAY_UDP > 0):
@@ -258,15 +258,15 @@ class PostService():
 
         except AttributeError as e:
             # socket被关闭后无法读写，输出DEBUG日志
-            globals.G_Log.debug('data post from server to client TypeError! [PostService.py:stocrun] --> %s' %e)
+            globals.G_Log.debug('data post from server to client TypeError! --> %s' %e)
         except socket.error as e:
             if e.errno == 10054 or e.errno == 10053 or e.errno == 10058:
                 # socket主动关闭的情况下，输出DEBUG日志
-                globals.G_Log.debug('data post from server to client socket.error %d! [PostService.py:stocrun] --> %s' %(e.errno,e))
+                globals.G_Log.debug('data post from server to client socket.error %d! --> %s' %(e.errno,e))
             else:
-                globals.G_Log.error('data post from server to client socket.error %d! [PostService.py:stocrun] --> %s' %(e.errno,e))
+                globals.G_Log.error('data post from server to client socket.error %d! --> %s' %(e.errno,e))
         except Exception as e:
-            globals.G_Log.error('data post from server to client error! [PostService.py:stocrun] --> %s' %e)
+            globals.G_Log.error('data post from server to client error! --> %s' %e)
         finally:
             self.abolishworker(tunnelworker)
 

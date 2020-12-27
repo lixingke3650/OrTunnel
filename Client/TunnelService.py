@@ -51,10 +51,10 @@ class TunnelService():
         ret = True
         if (self._ListenService.start() != True):
             ret = False
-            globals.G_Log.error('Listen Service Start error! [TunnelService.py:start]')
+            globals.G_Log.error('Listen Service Start error!')
         elif (self._PostService.start() != True):
             ret = False
-            globals.G_Log.error('Post Service Start error! [TunnelService.py:start]')
+            globals.G_Log.error('Post Service Start error!')
         if (ret != True):
             self._ListenService.stop()
             self._PostService.stop()
@@ -90,7 +90,7 @@ class TunnelService():
                 ret = self._TunnelWorkerList
 
         except Exception as e:
-            globals.G_Log.error( 'tunnelworks add or del error! [TunnelServer.py:tunnelworksmanager] --> %s' %e )
+            globals.G_Log.error('tunnelworks add or del error! --> %s' %e)
         # thread unlock
         self._TunnelWorkThreadRLock.release()
         # return work count

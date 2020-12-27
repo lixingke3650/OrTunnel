@@ -29,8 +29,10 @@ import Client
 # 0.41: 文件结构调整/log修正
 # 0.42: UDP发包间隔追加(一定程度防丢包)
 # 0.43: 修正MAC/Linux下socket释放不彻底的问题
+# 0.44: 更新SSL版本
+#       更新Logger(加入调用方信息)
 
-__Version__ = 'v0.42'
+__Version__ = 'v0.44'
 
 
 OrTunnelService = None

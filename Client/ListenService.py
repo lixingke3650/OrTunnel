@@ -68,7 +68,7 @@ class ListenService():
             globals.G_Log.debug('Listen Service Start End.')
             return True
         except Exception as e:
-            globals.G_Log.error('Listen Service Start error! [ListenService.py:start] --> %s' %e)
+            globals.G_Log.error('Listen Service Start error! --> %s' %e)
 
     def stop(self):
         '''监听服务停止'''
@@ -84,7 +84,7 @@ class ListenService():
             globals.G_Log.debug('Listen Service Stop End.')
             return True
         except Exception as e:
-            globals.G_Log.error('Listen Service Stop error! [ListenService.py:stop] --> %s' %e)
+            globals.G_Log.error('Listen Service Stop error! --> %s' %e)
             return False
 
     def generator(self, tunnelgroup):
@@ -112,4 +112,4 @@ class ListenService():
                 # print this worker info
                 globals.G_Log.info('accept: %s' %str(address))
             except Exception as e:
-                globals.G_Log.error('listen generator error! [ListenService.py:generator] --> %s' %e)
+                globals.G_Log.error('listen generator error! --> %s' %e)
