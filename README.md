@@ -25,6 +25,13 @@ cert文件夹中提供的证书可以用作测试，
 >$ openssl req -new -key server.key > server.csr  
 >$ openssl x509 -days 3650 -req -signkey server.key < server.csr > server.crt  
   
+----  
+### 更新至版本v0.44  
+
+更新STL版本至PROTOCOL_TLS。
+更新Logger模块，加入调用方信息。
+
+2020.12.27  
 
 ----  
 ### 更新至版本v0.43  
